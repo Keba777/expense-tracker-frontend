@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { BalanceCard } from "@/components/dashboard/balance-card";
 import { StatsGrid } from "@/components/dashboard/stats-grid";
@@ -16,9 +16,11 @@ import { transactionsApi } from "@/lib/api/transactions";
 import { reportsApi } from "@/lib/api/reports";
 import { getCurrentMonthRange, groupTransactionsByDate } from "@/lib/utils";
 import Link from "next/link";
+import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
+  const qc = useQueryClient();
   const openAddTransaction = useUIStore((s) => s.openAddTransaction);
   const t = useT();
   const { from, to } = getCurrentMonthRange();
@@ -51,7 +53,16 @@ export default function DashboardPage() {
   const transactions = recentData?.data ?? [];
   const grouped = groupTransactionsByDate(transactions);
 
+  const handleRefresh = () => {
+    qc.invalidateQueries({ queryKey: ["summary"] });
+    qc.invalidateQueries({ queryKey: ["transactions"] });
+    qc.invalidateQueries({ queryKey: ["breakdown"] });
+    qc.invalidateQueries({ queryKey: ["trends"] });
+    qc.invalidateQueries({ queryKey: ["weekly-report"] });
+  };
+
   return (
+    <PullToRefresh onRefresh={handleRefresh}>
     <div className="space-y-4 animate-fade-in">
       <BalanceCard summary={summary} isLoading={summaryLoading} currency={user?.currency} />
 
@@ -117,5 +128,6 @@ export default function DashboardPage() {
         <Plus className="w-6 h-6" />
       </button>
     </div>
+    </PullToRefresh>
   );
 }

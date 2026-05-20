@@ -11,6 +11,7 @@ import { TransactionGroup } from "@/components/transactions/transaction-card";
 import { TransactionSkeleton } from "@/components/ui/skeleton";
 import { groupTransactionsByDate, formatMonthYear, formatCurrency } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 
 export default function ExpensesPage() {
   const user = useAuthStore((s) => s.user);
@@ -80,7 +81,13 @@ export default function ExpensesPage() {
     setPage(1);
   };
 
+  const handleRefresh = () => {
+    qc.invalidateQueries({ queryKey: ["transactions"] });
+    qc.invalidateQueries({ queryKey: ["summary"] });
+  };
+
   return (
+    <PullToRefresh onRefresh={handleRefresh}>
     <div className="space-y-4 animate-fade-in">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">{t.expenses.title}</h1>
@@ -207,5 +214,6 @@ export default function ExpensesPage() {
         <Plus className="w-6 h-6" />
       </button>
     </div>
+    </PullToRefresh>
   );
 }

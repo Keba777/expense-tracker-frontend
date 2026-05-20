@@ -5,7 +5,6 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, Download, Loader2 } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
 import { reportsApi } from "@/lib/api/reports";
-import { transactionsApi } from "@/lib/api/transactions";
 import { SpendingDonut } from "@/components/charts/spending-donut";
 import { TrendLine } from "@/components/charts/trend-line";
 import { WeeklyBar } from "@/components/charts/weekly-bar";
@@ -23,6 +22,7 @@ export default function ReportsPage() {
   const [tab, setTab] = useState<ReportTab>("monthly");
   const [breakdownType, setBreakdownType] = useState<BreakdownType>("expense");
   const [isExporting, setIsExporting] = useState(false);
+  const [isExportingPDF, setIsExportingPDF] = useState(false);
 
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -65,18 +65,33 @@ export default function ReportsPage() {
     else setMonth(m => m + 1);
   };
 
-  const handleExport = async () => {
+  const triggerDownload = (blob: Blob, filename: string) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportCSV = async () => {
     setIsExporting(true);
     try {
+      const { transactionsApi } = await import("@/lib/api/transactions");
       const blob = await transactionsApi.exportCSV({ from, to });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `transactions-${year}-${String(month).padStart(2, "0")}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
+      triggerDownload(blob, `transactions-${year}-${String(month).padStart(2, "0")}.csv`);
     } finally {
       setIsExporting(false);
+    }
+  };
+
+  const handleExportPDF = async () => {
+    setIsExportingPDF(true);
+    try {
+      const blob = await reportsApi.exportPDF({ from, to, currency: user?.currency });
+      triggerDownload(blob, `report-${year}-${String(month).padStart(2, "0")}.pdf`);
+    } finally {
+      setIsExportingPDF(false);
     }
   };
 
@@ -143,15 +158,23 @@ export default function ReportsPage() {
                 ))}
               </div>
 
-              {/* Export button */}
-              <div className="flex justify-end">
+              {/* Export buttons */}
+              <div className="flex justify-end gap-2">
                 <button
-                  onClick={handleExport}
+                  onClick={handleExportCSV}
                   disabled={isExporting}
                   className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground bg-card border border-border px-3 py-1.5 rounded-xl transition-colors disabled:opacity-50"
                 >
                   {isExporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
                   {t.reports.exportCSV}
+                </button>
+                <button
+                  onClick={handleExportPDF}
+                  disabled={isExportingPDF}
+                  className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-xl transition-colors disabled:opacity-50"
+                >
+                  {isExportingPDF ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                  {t.reports.exportPDF}
                 </button>
               </div>
 

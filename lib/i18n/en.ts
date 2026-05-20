@@ -98,6 +98,7 @@ export const en = {
     saved: "Saved",
     net: "Net",
     exportCSV: "Export CSV",
+    exportPDF: "Export PDF",
     expense: "Expense",
     spendingBreakdown: "Spending Breakdown",
     incomeBreakdown: "Income Breakdown",

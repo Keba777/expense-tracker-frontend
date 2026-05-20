@@ -33,4 +33,12 @@ export const reportsApi = {
     });
     return data.data ?? [];
   },
+
+  exportPDF: async (params: { from: string; to: string; currency?: string }): Promise<Blob> => {
+    const { data } = await apiClient.get("/reports/pdf", {
+      params,
+      responseType: "blob",
+    });
+    return data as Blob;
+  },
 };

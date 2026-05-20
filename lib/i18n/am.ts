@@ -100,6 +100,7 @@ export const am = {
     saved: "ቁጠባ",
     net: "ቀሪ",
     exportCSV: "CSV አውርድ",
+    exportPDF: "PDF አውርድ",
     expense: "ወጪ",
     spendingBreakdown: "የወጪ ዝርዝር",
     incomeBreakdown: "የገቢ ዝርዝር",
