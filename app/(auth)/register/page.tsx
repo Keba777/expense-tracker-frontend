@@ -10,13 +10,14 @@ import { useMutation } from "@tanstack/react-query";
 import { Eye, EyeOff, TrendingUp, Loader2 } from "lucide-react";
 import { authApi } from "@/lib/api/auth";
 import { useAuthStore } from "@/store/auth-store";
+import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 const schema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  email: z.string().email("Enter a valid email"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  email: z.string().email(),
+  password: z.string().min(8),
   currency: z.string().default("USD"),
 });
 type FormData = z.infer<typeof schema>;
@@ -27,6 +28,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const setAuth = useAuthStore((s) => s.setAuth);
   const [showPassword, setShowPassword] = useState(false);
+  const t = useT();
 
   const {
     register,
@@ -43,7 +45,7 @@ export default function RegisterPage() {
     },
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
-      setError("root", { message: msg ?? "Registration failed. Please try again." });
+      setError("root", { message: msg ?? t.auth.registrationFailed });
     },
   });
 
@@ -60,8 +62,8 @@ export default function RegisterPage() {
         <div className="w-12 h-12 rounded-2xl bg-violet-600 flex items-center justify-center mb-4 shadow-glow">
           <TrendingUp className="w-6 h-6 text-white" />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">Create account</h1>
-        <p className="text-muted-foreground text-sm mt-1">Start tracking your finances</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t.auth.createAccount}</h1>
+        <p className="text-muted-foreground text-sm mt-1">{t.auth.createSubtitle}</p>
       </div>
 
       <div className="bg-card border border-border rounded-3xl p-6 shadow-card">
@@ -74,27 +76,27 @@ export default function RegisterPage() {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-sm font-medium">First name</label>
+              <label className="text-sm font-medium">{t.auth.firstName}</label>
               <input
                 {...register("firstName")}
                 placeholder="John"
                 className={inputClass(!!errors.firstName)}
               />
-              {errors.firstName && <p className="text-xs text-expense">{errors.firstName.message}</p>}
+              {errors.firstName && <p className="text-xs text-expense">{t.auth.firstNameRequired}</p>}
             </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-medium">Last name</label>
+              <label className="text-sm font-medium">{t.auth.lastName}</label>
               <input
                 {...register("lastName")}
                 placeholder="Doe"
                 className={inputClass(!!errors.lastName)}
               />
-              {errors.lastName && <p className="text-xs text-expense">{errors.lastName.message}</p>}
+              {errors.lastName && <p className="text-xs text-expense">{t.auth.lastNameRequired}</p>}
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-medium">Email</label>
+            <label className="text-sm font-medium">{t.auth.email}</label>
             <input
               {...register("email")}
               type="email"
@@ -102,17 +104,17 @@ export default function RegisterPage() {
               placeholder="you@example.com"
               className={inputClass(!!errors.email)}
             />
-            {errors.email && <p className="text-xs text-expense">{errors.email.message}</p>}
+            {errors.email && <p className="text-xs text-expense">{t.auth.emailRequired}</p>}
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-medium">Password</label>
+            <label className="text-sm font-medium">{t.auth.password}</label>
             <div className="relative">
               <input
                 {...register("password")}
                 type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
-                placeholder="Min. 8 characters"
+                placeholder={t.auth.minChars}
                 className={cn(inputClass(!!errors.password), "pr-10")}
               />
               <button
@@ -123,11 +125,11 @@ export default function RegisterPage() {
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
-            {errors.password && <p className="text-xs text-expense">{errors.password.message}</p>}
+            {errors.password && <p className="text-xs text-expense">{t.auth.passwordMinLength}</p>}
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-medium">Currency</label>
+            <label className="text-sm font-medium">{t.auth.currency}</label>
             <select {...register("currency")} className={cn(inputClass(), "cursor-pointer")}>
               {CURRENCIES.map((c) => (
                 <option key={c} value={c}>{c}</option>
@@ -146,17 +148,15 @@ export default function RegisterPage() {
             )}
           >
             {isPending ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Creating account…</>
-            ) : (
-              "Create account"
-            )}
+              <><Loader2 className="w-4 h-4 animate-spin" />{t.auth.creatingAccount}</>
+            ) : t.auth.createBtn}
           </button>
         </form>
       </div>
 
       <p className="text-center text-sm text-muted-foreground mt-6">
-        Already have an account?{" "}
-        <Link href="/login" className="text-primary font-medium hover:underline">Sign in</Link>
+        {t.auth.haveAccount}{" "}
+        <Link href="/login" className="text-primary font-medium hover:underline">{t.auth.signIn}</Link>
       </p>
     </div>
   );

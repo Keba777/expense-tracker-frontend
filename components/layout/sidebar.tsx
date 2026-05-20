@@ -8,19 +8,21 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth-store";
-
-const navItems = [
-  { href: "/dashboard", icon: Home, label: "Dashboard" },
-  { href: "/expenses", icon: ArrowDownUp, label: "Expenses" },
-  { href: "/income", icon: TrendingUp, label: "Income" },
-  { href: "/reports", icon: BarChart2, label: "Reports" },
-  { href: "/settings", icon: Settings, label: "Settings" },
-];
+import { useT } from "@/lib/i18n";
 
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, clearAuth } = useAuthStore();
+  const t = useT();
+
+  const navItems = [
+    { href: "/dashboard", icon: Home, label: t.nav.dashboard },
+    { href: "/expenses", icon: ArrowDownUp, label: t.nav.expenses },
+    { href: "/income", icon: TrendingUp, label: t.nav.income },
+    { href: "/reports", icon: BarChart2, label: t.nav.reports },
+    { href: "/settings", icon: Settings, label: t.nav.settings },
+  ];
 
   const handleLogout = () => {
     clearAuth();
@@ -74,7 +76,7 @@ export function Sidebar() {
           className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-expense/10 hover:text-expense transition-all w-full"
         >
           <LogOut className="w-4 h-4" />
-          Sign out
+          {t.nav.signOut}
         </button>
       </div>
     </aside>

@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Search, Filter, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Search, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
+import { useT } from "@/lib/i18n";
 import { transactionsApi, categoriesApi } from "@/lib/api/transactions";
 import { TransactionGroup } from "@/components/transactions/transaction-card";
 import { TransactionSkeleton } from "@/components/ui/skeleton";
@@ -13,7 +14,10 @@ import { cn } from "@/lib/utils";
 
 export default function ExpensesPage() {
   const user = useAuthStore((s) => s.user);
+  const qc = useQueryClient();
   const openAddTransaction = useUIStore((s) => s.openAddTransaction);
+  const openEditTransaction = useUIStore((s) => s.openEditTransaction);
+  const t = useT();
 
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -52,6 +56,15 @@ export default function ExpensesPage() {
     queryFn: () => transactionsApi.summary({ from, to }),
   });
 
+  const { mutate: deleteTransaction } = useMutation({
+    mutationFn: transactionsApi.delete,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["transactions"] });
+      qc.invalidateQueries({ queryKey: ["summary"] });
+      qc.invalidateQueries({ queryKey: ["reports"] });
+    },
+  });
+
   const transactions = data?.data ?? [];
   const meta = data?.meta;
   const grouped = groupTransactionsByDate(transactions);
@@ -70,13 +83,13 @@ export default function ExpensesPage() {
   return (
     <div className="space-y-4 animate-fade-in">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Expenses</h1>
+        <h1 className="text-xl font-bold">{t.expenses.title}</h1>
         <button
           onClick={() => openAddTransaction("expense")}
           className="flex items-center gap-1.5 bg-expense/15 text-expense text-sm font-medium px-3 py-1.5 rounded-xl hover:bg-expense/25 transition-colors"
         >
           <Plus className="w-3.5 h-3.5" />
-          Add
+          {t.expenses.add}
         </button>
       </div>
 
@@ -93,11 +106,11 @@ export default function ExpensesPage() {
         </div>
         <div className="grid grid-cols-2 gap-2 text-center">
           <div className="bg-expense/10 rounded-xl p-2">
-            <p className="text-xs text-muted-foreground">Total Spent</p>
+            <p className="text-xs text-muted-foreground">{t.expenses.totalSpent}</p>
             <p className="text-lg font-bold text-expense">{formatCurrency(summary?.totalExpense ?? 0, user?.currency)}</p>
           </div>
           <div className="bg-income/10 rounded-xl p-2">
-            <p className="text-xs text-muted-foreground">Transactions</p>
+            <p className="text-xs text-muted-foreground">{t.expenses.transactions}</p>
             <p className="text-lg font-bold">{meta?.total ?? 0}</p>
           </div>
         </div>
@@ -109,7 +122,7 @@ export default function ExpensesPage() {
         <input
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          placeholder="Search expenses…"
+          placeholder={t.expenses.searchPlaceholder}
           className="w-full h-10 bg-card border border-border rounded-xl pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
         />
       </div>
@@ -123,7 +136,7 @@ export default function ExpensesPage() {
             selectedCategory === "all" ? "bg-primary text-primary-foreground" : "bg-card border border-border text-muted-foreground hover:text-foreground"
           )}
         >
-          All
+          {t.expenses.all}
         </button>
         {expenseCategories.map((cat: any) => (
           <button
@@ -147,15 +160,22 @@ export default function ExpensesPage() {
       ) : !transactions.length ? (
         <div className="bg-card border border-border rounded-2xl p-10 text-center">
           <span className="text-4xl block mb-3">🔍</span>
-          <p className="font-semibold">No expenses found</p>
+          <p className="font-semibold">{t.expenses.notFound}</p>
           <p className="text-sm text-muted-foreground mt-1">
-            {search ? "Try a different search" : "No expenses for this period"}
+            {search ? t.expenses.tryDifferent : t.expenses.noPeriod}
           </p>
         </div>
       ) : (
         <div className="space-y-3">
           {Array.from(grouped.entries()).map(([date, txns]) => (
-            <TransactionGroup key={date} date={date} transactions={txns} currency={user?.currency} />
+            <TransactionGroup
+              key={date}
+              date={date}
+              transactions={txns}
+              currency={user?.currency}
+              onEdit={openEditTransaction}
+              onDelete={deleteTransaction}
+            />
           ))}
         </div>
       )}
@@ -167,7 +187,7 @@ export default function ExpensesPage() {
             onClick={() => setPage(p => p - 1)}
             className="px-4 py-2 rounded-xl bg-card border border-border text-sm disabled:opacity-40 hover:bg-accent transition-colors"
           >
-            Previous
+            {t.expenses.previous}
           </button>
           <span className="text-sm text-muted-foreground">{page} / {meta.totalPages}</span>
           <button
@@ -175,7 +195,7 @@ export default function ExpensesPage() {
             onClick={() => setPage(p => p + 1)}
             className="px-4 py-2 rounded-xl bg-card border border-border text-sm disabled:opacity-40 hover:bg-accent transition-colors"
           >
-            Next
+            {t.expenses.next}
           </button>
         </div>
       )}

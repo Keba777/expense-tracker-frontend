@@ -4,18 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, ArrowDownUp, TrendingUp, BarChart2, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUIStore } from "@/store/ui-store";
-
-const navItems = [
-  { href: "/dashboard", icon: Home, label: "Home" },
-  { href: "/expenses", icon: ArrowDownUp, label: "Expenses" },
-  { href: "/income", icon: TrendingUp, label: "Income" },
-  { href: "/reports", icon: BarChart2, label: "Reports" },
-  { href: "/settings", icon: Settings, label: "Settings" },
-];
+import { useT } from "@/lib/i18n";
 
 export function BottomNav() {
   const pathname = usePathname();
+  const t = useT();
+
+  const navItems = [
+    { href: "/dashboard", icon: Home, label: t.nav.home },
+    { href: "/expenses", icon: ArrowDownUp, label: t.nav.expenses },
+    { href: "/income", icon: TrendingUp, label: t.nav.income },
+    { href: "/reports", icon: BarChart2, label: t.nav.reports },
+    { href: "/settings", icon: Settings, label: t.nav.settings },
+  ];
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 md:hidden">

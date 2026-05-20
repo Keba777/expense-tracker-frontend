@@ -8,13 +8,14 @@ import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import {
-  User, Palette, Bell, Shield, LogOut, ChevronRight,
-  Sun, Moon, Monitor, Plus, Trash2, Loader2,
+  User, Palette, Bell, Globe, LogOut, ChevronRight,
+  Sun, Moon, Monitor, Trash2, Loader2,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
-import { useUIStore } from "@/store/ui-store";
+import { useLangStore } from "@/store/lang-store";
 import { categoriesApi } from "@/lib/api/transactions";
 import { apiClient } from "@/lib/api/client";
+import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/types";
 
@@ -34,7 +35,8 @@ export default function SettingsPage() {
   const qc = useQueryClient();
   const { theme, setTheme } = useTheme();
   const { user, clearAuth, updateUser } = useAuthStore();
-  const openAddTransaction = useUIStore((s) => s.openAddTransaction);
+  const { lang, setLang } = useLangStore();
+  const t = useT();
   const [activeSection, setActiveSection] = useState<string | null>(null);
 
   const { data: categories = [], isLoading: catsLoading } = useQuery({
@@ -73,14 +75,15 @@ export default function SettingsPage() {
   const inputClass = "w-full h-11 bg-muted rounded-xl px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 border border-border";
 
   const sections = [
-    { id: "profile", icon: User, label: "Profile & Currency", description: "Name, currency, timezone" },
-    { id: "appearance", icon: Palette, label: "Appearance", description: "Theme and display" },
-    { id: "categories", icon: Bell, label: "Categories", description: "Manage spending categories" },
+    { id: "profile", icon: User, label: t.settings.profile, description: t.settings.profileDesc },
+    { id: "appearance", icon: Palette, label: t.settings.appearance, description: t.settings.appearanceDesc },
+    { id: "categories", icon: Bell, label: t.settings.categories, description: t.settings.categoriesDesc },
+    { id: "language", icon: Globe, label: t.settings.language, description: t.settings.languageDesc },
   ];
 
   return (
     <div className="space-y-4 animate-fade-in">
-      <h1 className="text-xl font-bold">Settings</h1>
+      <h1 className="text-xl font-bold">{t.settings.title}</h1>
 
       {/* User card */}
       <div className="bg-card border border-border rounded-2xl p-4 flex items-center gap-4">
@@ -93,7 +96,7 @@ export default function SettingsPage() {
           <p className="font-semibold">{user?.firstName} {user?.lastName}</p>
           <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
           <span className="inline-block mt-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/15 text-primary">
-            {user?.plan} plan
+            {user?.plan} {t.settings.planLabel}
           </span>
         </div>
       </div>
@@ -121,26 +124,26 @@ export default function SettingsPage() {
       {/* Profile section */}
       {activeSection === "profile" && (
         <div className="bg-card border border-border rounded-2xl p-4 space-y-4 animate-slide-down">
-          <h3 className="text-sm font-semibold">Profile Settings</h3>
+          <h3 className="text-sm font-semibold">{t.settings.profileSettings}</h3>
           <form onSubmit={handleSubmit((d) => saveProfile(d))} className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">First Name</label>
+                <label className="text-xs font-medium text-muted-foreground">{t.settings.firstName}</label>
                 <input {...register("firstName")} className={inputClass} />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Last Name</label>
+                <label className="text-xs font-medium text-muted-foreground">{t.settings.lastName}</label>
                 <input {...register("lastName")} className={inputClass} />
               </div>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Currency</label>
+              <label className="text-xs font-medium text-muted-foreground">{t.settings.currency}</label>
               <select {...register("currency")} className={cn(inputClass, "cursor-pointer")}>
                 {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Timezone</label>
+              <label className="text-xs font-medium text-muted-foreground">{t.settings.timezone}</label>
               <select {...register("timezone")} className={cn(inputClass, "cursor-pointer")}>
                 {TIMEZONES.map(tz => <option key={tz} value={tz}>{tz}</option>)}
               </select>
@@ -154,7 +157,7 @@ export default function SettingsPage() {
                 "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
-              {savingProfile ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving…</> : "Save Changes"}
+              {savingProfile ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> {t.settings.saving}</> : t.settings.saveChanges}
             </button>
           </form>
         </div>
@@ -163,12 +166,12 @@ export default function SettingsPage() {
       {/* Appearance section */}
       {activeSection === "appearance" && (
         <div className="bg-card border border-border rounded-2xl p-4 space-y-3 animate-slide-down">
-          <h3 className="text-sm font-semibold">Theme</h3>
+          <h3 className="text-sm font-semibold">{t.settings.theme}</h3>
           <div className="grid grid-cols-3 gap-2">
             {[
-              { value: "light", label: "Light", icon: Sun },
-              { value: "dark", label: "Dark", icon: Moon },
-              { value: "system", label: "System", icon: Monitor },
+              { value: "light", label: t.settings.light, icon: Sun },
+              { value: "dark", label: t.settings.dark, icon: Moon },
+              { value: "system", label: t.settings.system, icon: Monitor },
             ].map(({ value, label, icon: Icon }) => (
               <button
                 key={value}
@@ -192,7 +195,7 @@ export default function SettingsPage() {
       {activeSection === "categories" && (
         <div className="bg-card border border-border rounded-2xl p-4 space-y-3 animate-slide-down">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold">Categories</h3>
+            <h3 className="text-sm font-semibold">{t.settings.categories}</h3>
           </div>
           {catsLoading ? (
             <div className="space-y-2">
@@ -223,6 +226,29 @@ export default function SettingsPage() {
         </div>
       )}
 
+      {/* Language section */}
+      {activeSection === "language" && (
+        <div className="bg-card border border-border rounded-2xl p-4 space-y-3 animate-slide-down">
+          <h3 className="text-sm font-semibold">{t.settings.language}</h3>
+          <div className="grid grid-cols-2 gap-2">
+            {(["en", "am"] as const).map((l) => (
+              <button
+                key={l}
+                onClick={() => setLang(l)}
+                className={cn(
+                  "h-10 rounded-xl text-sm font-semibold transition-all border",
+                  lang === l
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "border-border bg-muted text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {l === "en" ? t.settings.english : t.settings.amharic}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Logout */}
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
         <button
@@ -233,15 +259,15 @@ export default function SettingsPage() {
             <LogOut className="w-4 h-4" />
           </div>
           <div className="flex-1 text-left">
-            <p className="text-sm font-medium">Sign out</p>
-            <p className="text-xs text-muted-foreground">Log out of your account</p>
+            <p className="text-sm font-medium">{t.settings.signOut}</p>
+            <p className="text-xs text-muted-foreground">{t.settings.signOutDesc}</p>
           </div>
         </button>
       </div>
 
       <div className="text-center pb-4">
-        <p className="text-xs text-muted-foreground">ExpenseTracker v0.1.0</p>
-        <p className="text-xs text-muted-foreground/50 mt-0.5">Built for clarity, designed for you</p>
+        <p className="text-xs text-muted-foreground">{t.settings.version}</p>
+        <p className="text-xs text-muted-foreground/50 mt-0.5">{t.settings.tagline}</p>
       </div>
     </div>
   );

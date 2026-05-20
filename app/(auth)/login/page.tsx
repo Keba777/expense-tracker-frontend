@@ -10,12 +10,12 @@ import { useMutation } from "@tanstack/react-query";
 import { Eye, EyeOff, TrendingUp, Loader2 } from "lucide-react";
 import { authApi } from "@/lib/api/auth";
 import { useAuthStore } from "@/store/auth-store";
+import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
-import type { Metadata } from "next";
 
 const schema = z.object({
-  email: z.string().email("Enter a valid email"),
-  password: z.string().min(1, "Password is required"),
+  email: z.string().email(),
+  password: z.string().min(1),
 });
 type FormData = z.infer<typeof schema>;
 
@@ -23,6 +23,7 @@ export default function LoginPage() {
   const router = useRouter();
   const setAuth = useAuthStore((s) => s.setAuth);
   const [showPassword, setShowPassword] = useState(false);
+  const t = useT();
 
   const {
     register,
@@ -38,7 +39,7 @@ export default function LoginPage() {
       router.push("/dashboard");
     },
     onError: () => {
-      setError("root", { message: "Invalid email or password" });
+      setError("root", { message: t.auth.invalidCreds });
     },
   });
 
@@ -48,8 +49,8 @@ export default function LoginPage() {
         <div className="w-12 h-12 rounded-2xl bg-violet-600 flex items-center justify-center mb-4 shadow-glow">
           <TrendingUp className="w-6 h-6 text-white" />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
-        <p className="text-muted-foreground text-sm mt-1">Sign in to your account</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t.auth.welcomeBack}</h1>
+        <p className="text-muted-foreground text-sm mt-1">{t.auth.signInSubtitle}</p>
       </div>
 
       <div className="bg-card border border-border rounded-3xl p-6 shadow-card">
@@ -61,7 +62,7 @@ export default function LoginPage() {
           )}
 
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground">Email</label>
+            <label className="text-sm font-medium text-foreground">{t.auth.email}</label>
             <input
               {...register("email")}
               type="email"
@@ -73,13 +74,11 @@ export default function LoginPage() {
                 errors.email ? "border-expense/50" : "border-border focus:border-primary/50"
               )}
             />
-            {errors.email && (
-              <p className="text-xs text-expense">{errors.email.message}</p>
-            )}
+            {errors.email && <p className="text-xs text-expense">{t.auth.emailRequired}</p>}
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground">Password</label>
+            <label className="text-sm font-medium text-foreground">{t.auth.password}</label>
             <div className="relative">
               <input
                 {...register("password")}
@@ -100,9 +99,7 @@ export default function LoginPage() {
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
-            {errors.password && (
-              <p className="text-xs text-expense">{errors.password.message}</p>
-            )}
+            {errors.password && <p className="text-xs text-expense">{t.auth.passwordRequired}</p>}
           </div>
 
           <button
@@ -116,21 +113,16 @@ export default function LoginPage() {
             )}
           >
             {isPending ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Signing in…
-              </>
-            ) : (
-              "Sign in"
-            )}
+              <><Loader2 className="w-4 h-4 animate-spin" />{t.auth.signingIn}</>
+            ) : t.auth.signIn}
           </button>
         </form>
       </div>
 
       <p className="text-center text-sm text-muted-foreground mt-6">
-        Don&apos;t have an account?{" "}
+        {t.auth.noAccount}{" "}
         <Link href="/register" className="text-primary font-medium hover:underline">
-          Create one
+          {t.auth.createOne}
         </Link>
       </p>
     </div>

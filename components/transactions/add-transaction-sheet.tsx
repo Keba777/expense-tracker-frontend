@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import { transactionsApi, categoriesApi } from "@/lib/api/transactions";
 import { useUIStore } from "@/store/ui-store";
 import { useAuthStore } from "@/store/auth-store";
+import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/types";
 
@@ -27,7 +28,10 @@ type FormData = z.infer<typeof schema>;
 export function AddTransactionSheet() {
   const qc = useQueryClient();
   const user = useAuthStore((s) => s.user);
-  const { isAddTransactionOpen, closeAddTransaction, defaultTransactionType } = useUIStore();
+  const t = useT();
+  const { isAddTransactionOpen, closeAddTransaction, defaultTransactionType, editingTransaction } = useUIStore();
+
+  const isEditing = editingTransaction !== null;
 
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
@@ -55,13 +59,32 @@ export function AddTransactionSheet() {
   const selectedType = watch("type");
 
   useEffect(() => {
-    setValue("type", defaultTransactionType);
-    setValue("categoryId", "");
-  }, [defaultTransactionType, setValue]);
+    if (editingTransaction) {
+      reset({
+        type: editingTransaction.type,
+        amount: String(editingTransaction.amount),
+        description: editingTransaction.description,
+        categoryId: editingTransaction.categoryId,
+        date: editingTransaction.date,
+        recurrence: editingTransaction.recurrence,
+        notes: editingTransaction.notes ?? "",
+      });
+    } else {
+      reset({
+        type: defaultTransactionType,
+        amount: "",
+        description: "",
+        categoryId: "",
+        date: format(new Date(), "yyyy-MM-dd"),
+        recurrence: "once",
+        notes: "",
+      });
+    }
+  }, [editingTransaction, defaultTransactionType, reset]);
 
   const filteredCategories = categories.filter((c: Category) => c.type === selectedType);
 
-  const { mutate, isPending } = useMutation({
+  const { mutate: create, isPending: isCreating } = useMutation({
     mutationFn: (data: FormData) =>
       transactionsApi.create({
         categoryId: data.categoryId,
@@ -77,9 +100,34 @@ export function AddTransactionSheet() {
       qc.invalidateQueries({ queryKey: ["summary"] });
       qc.invalidateQueries({ queryKey: ["reports"] });
       closeAddTransaction();
-      reset();
     },
   });
+
+  const { mutate: update, isPending: isUpdating } = useMutation({
+    mutationFn: (data: FormData) =>
+      transactionsApi.update(editingTransaction!.id, {
+        categoryId: data.categoryId,
+        type: data.type,
+        amount: Number(data.amount),
+        description: data.description,
+        notes: data.notes || undefined,
+        date: data.date,
+        recurrence: data.recurrence,
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["transactions"] });
+      qc.invalidateQueries({ queryKey: ["summary"] });
+      qc.invalidateQueries({ queryKey: ["reports"] });
+      closeAddTransaction();
+    },
+  });
+
+  const isPending = isCreating || isUpdating;
+
+  const onSubmit = (data: FormData) => {
+    if (isEditing) update(data);
+    else create(data);
+  };
 
   if (!isAddTransactionOpen) return null;
 
@@ -97,7 +145,7 @@ export function AddTransactionSheet() {
         )}
       >
         <div className="sticky top-0 bg-card/95 backdrop-blur-sm z-10 flex items-center justify-between px-5 pt-4 pb-3 border-b border-border">
-          <h2 className="text-lg font-semibold">New Transaction</h2>
+          <h2 className="text-lg font-semibold">{isEditing ? t.transaction.edit : t.transaction.new}</h2>
           <button
             onClick={closeAddTransaction}
             className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
@@ -106,28 +154,30 @@ export function AddTransactionSheet() {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit((d) => mutate(d))} className="p-5 space-y-5">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-5">
           {/* Type toggle */}
           <Controller
             name="type"
             control={control}
             render={({ field }) => (
               <div className="grid grid-cols-2 gap-2 bg-muted p-1 rounded-2xl">
-                {(["expense", "income"] as const).map((t) => (
+                {(["expense", "income"] as const).map((type) => (
                   <button
-                    key={t}
+                    key={type}
                     type="button"
-                    onClick={() => { field.onChange(t); setValue("categoryId", ""); }}
+                    disabled={isEditing}
+                    onClick={() => { field.onChange(type); setValue("categoryId", ""); }}
                     className={cn(
                       "h-10 rounded-xl text-sm font-semibold capitalize transition-all",
-                      field.value === t
-                        ? t === "income"
+                      field.value === type
+                        ? type === "income"
                           ? "bg-income text-white shadow-glow-income"
                           : "bg-expense text-white shadow-glow-expense"
-                        : "text-muted-foreground hover:text-foreground"
+                        : "text-muted-foreground hover:text-foreground",
+                      isEditing && "cursor-not-allowed opacity-80"
                     )}
                   >
-                    {t === "income" ? "💰 Income" : "💸 Expense"}
+                    {type === "income" ? t.transaction.income : t.transaction.expense}
                   </button>
                 ))}
               </div>
@@ -136,7 +186,7 @@ export function AddTransactionSheet() {
 
           {/* Amount */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium">Amount</label>
+            <label className="text-sm font-medium">{t.transaction.amount}</label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">
                 {user?.currency ?? "USD"}
@@ -154,27 +204,27 @@ export function AddTransactionSheet() {
                 )}
               />
             </div>
-            {errors.amount && <p className="text-xs text-expense">{errors.amount.message}</p>}
+            {errors.amount && <p className="text-xs text-expense">{errors.amount.message === "Amount required" ? t.transaction.amountRequired : t.transaction.mustBePositive}</p>}
           </div>
 
           {/* Description */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium">Description</label>
+            <label className="text-sm font-medium">{t.transaction.description}</label>
             <input
               {...register("description")}
-              placeholder="What was this for?"
+              placeholder={t.transaction.whatFor}
               className={cn(
                 "w-full h-11 bg-muted rounded-xl px-4 text-sm",
                 "focus:outline-none focus:ring-2 focus:ring-primary/50",
                 errors.description ? "ring-2 ring-expense/50" : ""
               )}
             />
-            {errors.description && <p className="text-xs text-expense">{errors.description.message}</p>}
+            {errors.description && <p className="text-xs text-expense">{t.transaction.descriptionRequired}</p>}
           </div>
 
           {/* Category */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Category</label>
+            <label className="text-sm font-medium">{t.transaction.category}</label>
             <Controller
               name="categoryId"
               control={control}
@@ -201,13 +251,13 @@ export function AddTransactionSheet() {
                 </div>
               )}
             />
-            {errors.categoryId && <p className="text-xs text-expense">{errors.categoryId.message}</p>}
+            {errors.categoryId && <p className="text-xs text-expense">{t.transaction.selectCategory}</p>}
           </div>
 
           {/* Date + Recurrence */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-sm font-medium">Date</label>
+              <label className="text-sm font-medium">{t.transaction.date}</label>
               <input
                 {...register("date")}
                 type="date"
@@ -215,26 +265,26 @@ export function AddTransactionSheet() {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-medium">Repeat</label>
+              <label className="text-sm font-medium">{t.transaction.repeat}</label>
               <select
                 {...register("recurrence")}
                 className="w-full h-11 bg-muted rounded-xl px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
               >
-                <option value="once">Once</option>
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
+                <option value="once">{t.transaction.once}</option>
+                <option value="daily">{t.transaction.daily}</option>
+                <option value="weekly">{t.transaction.weekly}</option>
+                <option value="monthly">{t.transaction.monthly}</option>
               </select>
             </div>
           </div>
 
           {/* Notes */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-muted-foreground">Notes (optional)</label>
+            <label className="text-sm font-medium text-muted-foreground">{t.transaction.notes}</label>
             <textarea
               {...register("notes")}
               rows={2}
-              placeholder="Any additional notes…"
+              placeholder={t.transaction.notesPlaceholder}
               className="w-full bg-muted rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
           </div>
@@ -248,7 +298,7 @@ export function AddTransactionSheet() {
               "disabled:opacity-60 disabled:cursor-not-allowed"
             )}
           >
-            {isPending ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving…</> : "Save Transaction"}
+            {isPending ? <><Loader2 className="w-4 h-4 animate-spin" /> {t.transaction.saving}</> : isEditing ? t.transaction.saveChanges : t.transaction.save}
           </button>
         </form>
       </div>

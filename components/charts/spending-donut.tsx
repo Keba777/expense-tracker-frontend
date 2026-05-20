@@ -1,7 +1,8 @@
 "use client";
 
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { formatCurrency } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { CategoryTotal } from "@/types";
 
@@ -9,6 +10,8 @@ interface SpendingDonutProps {
   data?: CategoryTotal[];
   isLoading?: boolean;
   currency?: string;
+  title?: string;
+  emptyLabel?: string;
 }
 
 const CustomTooltip = ({ active, payload, currency }: { active?: boolean; payload?: any[]; currency?: string }) => {
@@ -23,7 +26,11 @@ const CustomTooltip = ({ active, payload, currency }: { active?: boolean; payloa
   );
 };
 
-export function SpendingDonut({ data = [], isLoading, currency = "USD" }: SpendingDonutProps) {
+export function SpendingDonut({ data = [], isLoading, currency = "USD", title, emptyLabel }: SpendingDonutProps) {
+  const t = useT();
+  const resolvedTitle = title ?? t.charts.spendingBreakdown;
+  const resolvedEmptyLabel = emptyLabel ?? t.charts.noExpenses;
+
   if (isLoading) {
     return (
       <div className="bg-card border border-border rounded-2xl p-5">
@@ -38,11 +45,11 @@ export function SpendingDonut({ data = [], isLoading, currency = "USD" }: Spendi
   if (!data.length) {
     return (
       <div className="bg-card border border-border rounded-2xl p-5">
-        <p className="text-sm font-semibold mb-1">Spending Breakdown</p>
-        <p className="text-xs text-muted-foreground mb-4">This month by category</p>
+        <p className="text-sm font-semibold mb-1">{resolvedTitle}</p>
+        <p className="text-xs text-muted-foreground mb-4">{t.charts.byCategory}</p>
         <div className="flex flex-col items-center justify-center h-32 text-center">
           <span className="text-3xl mb-2">📊</span>
-          <p className="text-sm text-muted-foreground">No expenses yet</p>
+          <p className="text-sm text-muted-foreground">{resolvedEmptyLabel}</p>
         </div>
       </div>
     );
@@ -50,8 +57,8 @@ export function SpendingDonut({ data = [], isLoading, currency = "USD" }: Spendi
 
   return (
     <div className="bg-card border border-border rounded-2xl p-5">
-      <p className="text-sm font-semibold mb-0.5">Spending Breakdown</p>
-      <p className="text-xs text-muted-foreground mb-4">This month by category</p>
+      <p className="text-sm font-semibold mb-0.5">{resolvedTitle}</p>
+      <p className="text-xs text-muted-foreground mb-4">{t.charts.byCategory}</p>
 
       <ResponsiveContainer width="100%" height={200}>
         <PieChart>

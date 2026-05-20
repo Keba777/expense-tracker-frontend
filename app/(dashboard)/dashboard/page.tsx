@@ -11,6 +11,7 @@ import { TransactionGroup } from "@/components/transactions/transaction-card";
 import { TransactionSkeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
+import { useT } from "@/lib/i18n";
 import { transactionsApi } from "@/lib/api/transactions";
 import { reportsApi } from "@/lib/api/reports";
 import { getCurrentMonthRange, groupTransactionsByDate } from "@/lib/utils";
@@ -19,6 +20,7 @@ import Link from "next/link";
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
   const openAddTransaction = useUIStore((s) => s.openAddTransaction);
+  const t = useT();
   const { from, to } = getCurrentMonthRange();
 
   const { data: summary, isLoading: summaryLoading } = useQuery({
@@ -57,15 +59,21 @@ export default function DashboardPage() {
 
       <WeeklyBar data={weeklyData?.daily} isLoading={weeklyLoading} />
 
-      <SpendingDonut data={breakdown} isLoading={breakdownLoading} currency={user?.currency} />
+      <SpendingDonut
+        data={breakdown}
+        isLoading={breakdownLoading}
+        currency={user?.currency}
+        title={t.charts.spendingBreakdown}
+        emptyLabel={t.charts.noExpenses}
+      />
 
       <TrendLine data={trends} isLoading={trendsLoading} />
 
       <div>
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-semibold">Recent Transactions</p>
+          <p className="text-sm font-semibold">{t.dashboard.recentTransactions}</p>
           <Link href="/expenses" className="text-xs text-primary font-medium hover:underline">
-            View all
+            {t.dashboard.viewAll}
           </Link>
         </div>
 
@@ -76,14 +84,14 @@ export default function DashboardPage() {
         ) : !transactions.length ? (
           <div className="bg-card border border-border rounded-2xl p-8 text-center">
             <span className="text-4xl block mb-3">🧾</span>
-            <p className="font-semibold mb-1">No transactions yet</p>
-            <p className="text-sm text-muted-foreground mb-4">Start tracking your money</p>
+            <p className="font-semibold mb-1">{t.dashboard.noTransactions}</p>
+            <p className="text-sm text-muted-foreground mb-4">{t.dashboard.startTracking}</p>
             <button
               onClick={() => openAddTransaction()}
               className="inline-flex items-center gap-2 bg-primary text-primary-foreground text-sm font-medium px-4 py-2 rounded-xl hover:bg-primary/90 transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
-              Add first transaction
+              {t.dashboard.addFirst}
             </button>
           </div>
         ) : (
@@ -104,7 +112,7 @@ export default function DashboardPage() {
       <button
         onClick={() => openAddTransaction()}
         className="fixed right-4 bottom-20 md:bottom-6 z-40 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-glow flex items-center justify-center hover:bg-primary/90 transition-all hover:scale-105 active:scale-95"
-        aria-label="Add transaction"
+        aria-label={t.dashboard.addFirst}
       >
         <Plus className="w-6 h-6" />
       </button>

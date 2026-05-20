@@ -71,7 +71,7 @@
   --color-expense-dark: #881337;
 
   /* Fonts */
-  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-sans: var(--font-geist-sans), "Noto Sans Ethiopic", system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), monospace;
 
   /* Border radius */

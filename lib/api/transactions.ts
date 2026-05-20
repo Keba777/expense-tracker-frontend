@@ -44,6 +44,11 @@ export const transactionsApi = {
     const { data } = await apiClient.get<ApiResponse<Summary>>("/transactions/summary", { params });
     return data.data!;
   },
+
+  exportCSV: async (params?: { from?: string; to?: string; type?: string }): Promise<Blob> => {
+    const { data } = await apiClient.get("/transactions/export", { params, responseType: "blob" });
+    return data as Blob;
+  },
 };
 
 export const categoriesApi = {

@@ -1,11 +1,14 @@
 "use client";
 
 import { create } from "zustand";
+import type { Transaction } from "@/types";
 
 interface UIState {
   isAddTransactionOpen: boolean;
   defaultTransactionType: "income" | "expense";
+  editingTransaction: Transaction | null;
   openAddTransaction: (type?: "income" | "expense") => void;
+  openEditTransaction: (transaction: Transaction) => void;
   closeAddTransaction: () => void;
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
@@ -14,9 +17,12 @@ interface UIState {
 export const useUIStore = create<UIState>((set) => ({
   isAddTransactionOpen: false,
   defaultTransactionType: "expense",
+  editingTransaction: null,
   openAddTransaction: (type = "expense") =>
-    set({ isAddTransactionOpen: true, defaultTransactionType: type }),
-  closeAddTransaction: () => set({ isAddTransactionOpen: false }),
+    set({ isAddTransactionOpen: true, defaultTransactionType: type, editingTransaction: null }),
+  openEditTransaction: (transaction: Transaction) =>
+    set({ isAddTransactionOpen: true, editingTransaction: transaction, defaultTransactionType: transaction.type }),
+  closeAddTransaction: () => set({ isAddTransactionOpen: false, editingTransaction: null }),
   isSidebarOpen: false,
   toggleSidebar: () => set((s) => ({ isSidebarOpen: !s.isSidebarOpen })),
 }));

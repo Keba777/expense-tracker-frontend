@@ -2,6 +2,7 @@
 
 import { TrendingUp, Target, Calendar, Wallet } from "lucide-react";
 import { formatCurrency, formatCompact } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Summary } from "@/types";
 import { cn } from "@/lib/utils";
@@ -46,6 +47,7 @@ function StatCard({ label, value, subValue, icon, color, isLoading }: StatCardPr
 }
 
 export function StatsGrid({ summary, isLoading, currency = "USD" }: StatsGridProps) {
+  const t = useT();
   const netBalance = summary?.netBalance ?? 0;
   const savingsRate = summary?.savingsRate ?? 0;
   const totalIncome = summary?.totalIncome ?? 0;
@@ -56,33 +58,33 @@ export function StatsGrid({ summary, isLoading, currency = "USD" }: StatsGridPro
   return (
     <div className="grid grid-cols-2 gap-3">
       <StatCard
-        label="Savings"
+        label={t.stats.savings}
         value={formatCurrency(netBalance, currency)}
-        subValue="this month"
+        subValue={t.stats.thisMonth}
         icon={<Wallet className="w-4 h-4 text-violet-400" />}
         color="bg-violet-500/15"
         isLoading={isLoading}
       />
       <StatCard
-        label="Savings rate"
+        label={t.stats.savingsRate}
         value={`${savingsRate.toFixed(1)}%`}
-        subValue={savingsRate >= 20 ? "Great job!" : "Keep going"}
+        subValue={savingsRate >= 20 ? t.stats.greatJob : t.stats.keepGoing}
         icon={<Target className="w-4 h-4 text-income" />}
         color="bg-income/15"
         isLoading={isLoading}
       />
       <StatCard
-        label="Avg. daily spend"
+        label={t.stats.avgDaily}
         value={`$${formatCompact(avgDaily)}`}
-        subValue={`${new Date().getDate()} days so far`}
+        subValue={t.stats.daysSoFar(new Date().getDate())}
         icon={<Calendar className="w-4 h-4 text-amber-400" />}
         color="bg-amber-500/15"
         isLoading={isLoading}
       />
       <StatCard
-        label="Total income"
+        label={t.stats.totalIncome}
         value={`$${formatCompact(totalIncome)}`}
-        subValue="this month"
+        subValue={t.stats.thisMonth}
         icon={<TrendingUp className="w-4 h-4 text-sky-400" />}
         color="bg-sky-500/15"
         isLoading={isLoading}
