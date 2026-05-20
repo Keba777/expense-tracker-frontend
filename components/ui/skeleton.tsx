@@ -1,11 +1,13 @@
+import React from "react";
 import { cn } from "@/lib/utils";
 
 interface SkeletonProps {
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export function Skeleton({ className }: SkeletonProps) {
-  return <div className={cn("skeleton h-4 w-full", className)} />;
+export function Skeleton({ className, style }: SkeletonProps) {
+  return <div className={cn("skeleton h-4 w-full", className)} style={style} />;
 }
 
 export function TransactionSkeleton() {
