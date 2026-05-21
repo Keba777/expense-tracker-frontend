@@ -99,8 +99,10 @@ export function TransactionCard({
     setSliding(true);
   };
 
+  const needsTracking = hasActions || !!onTap;
+
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (!hasActions) return;
+    if (!needsTracking) return;
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
     touchDir.current = null;
@@ -108,7 +110,7 @@ export function TransactionCard({
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!hasActions) return;
+    if (!needsTracking) return;
     const touch = e.touches[0];
     const dx = touch.clientX - touchStartX.current;
     const dy = Math.abs(touch.clientY - touchStartY.current);
@@ -122,14 +124,16 @@ export function TransactionCard({
     }
     if (touchDir.current === "v") return;
 
-    // Move card: offset is anchored to the snap position at touchstart
+    // Swipe offset only when actions are present
+    if (!hasActions) return;
     const raw = snapPos.current + dx;
     const clamped = Math.max(-ACTION_W - 8, Math.min(8, raw));
     setOffset(clamped);
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    // Pure tap (no movement) → open detail view
+    if (!needsTracking) return;
+    // Pure tap (no directional movement detected) → open detail view
     if (touchDir.current === null && onTap) {
       touchHandled.current = true;
       setTimeout(() => { touchHandled.current = false; }, 500);
