@@ -90,11 +90,11 @@ export default function DashboardPage() {
         </div>
 
         {txLoading ? (
-          <div className="bg-card border border-border rounded-2xl divide-y divide-border overflow-hidden">
+          <div className="surface-1 rounded-2xl divide-y divide-border overflow-hidden">
             {Array.from({ length: 5 }).map((_, i) => <TransactionSkeleton key={i} />)}
           </div>
         ) : !transactions.length ? (
-          <div className="bg-card border border-border rounded-2xl p-8 text-center">
+          <div className="surface-1 rounded-2xl p-8 text-center">
             <span className="text-4xl block mb-3">🧾</span>
             <p className="font-semibold mb-1">{t.dashboard.noTransactions}</p>
             <p className="text-sm text-muted-foreground mb-4">{t.dashboard.startTracking}</p>
@@ -124,7 +124,7 @@ export default function DashboardPage() {
       {/* FAB */}
       <button
         onClick={() => openAddTransaction()}
-        className="fixed right-4 bottom-20 md:bottom-6 z-40 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-glow flex items-center justify-center hover:bg-primary/90 transition-all hover:scale-105 active:scale-95"
+        className="fixed right-4 bottom-20 md:bottom-6 z-40 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-glow flex items-center justify-center hover:bg-primary/90 transition-all hover:scale-105 active:scale-95 press"
         aria-label={t.dashboard.addFirst}
       >
         <Plus className="w-6 h-6" />

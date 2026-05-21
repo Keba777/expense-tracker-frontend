@@ -128,11 +128,11 @@ export default function ReportsPage() {
         <div className="space-y-4">
           {/* Month picker + Export */}
           <div className="flex items-center justify-between">
-            <button onClick={prevMonth} className="w-8 h-8 rounded-xl bg-card border border-border flex items-center justify-center hover:bg-accent transition-colors">
+            <button onClick={prevMonth} className="w-8 h-8 rounded-xl surface-1 flex items-center justify-center hover:bg-accent transition-colors">
               <ChevronLeft className="w-4 h-4" />
             </button>
             <span className="text-sm font-semibold">{formatMonthYear(year, month)}</span>
-            <button onClick={nextMonth} className="w-8 h-8 rounded-xl bg-card border border-border flex items-center justify-center hover:bg-accent transition-colors">
+            <button onClick={nextMonth} className="w-8 h-8 rounded-xl surface-1 flex items-center justify-center hover:bg-accent transition-colors">
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
@@ -163,7 +163,7 @@ export default function ReportsPage() {
                 <button
                   onClick={handleExportCSV}
                   disabled={isExporting}
-                  className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground bg-card border border-border px-3 py-1.5 rounded-xl transition-colors disabled:opacity-50"
+                  className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground surface-1 px-3 py-1.5 rounded-xl transition-colors disabled:opacity-50"
                 >
                   {isExporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
                   {t.reports.exportCSV}
@@ -215,7 +215,7 @@ export default function ReportsPage() {
 
               {/* Daily breakdown */}
               {monthlyReport.daily.length > 0 && (
-                <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
+                <div className="surface-1 rounded-2xl p-4 space-y-3">
                   <p className="text-sm font-semibold">{t.reports.dailyBreakdown}</p>
                   {monthlyReport.daily
                     .sort((a, b) => b.expense - a.expense)
@@ -272,7 +272,7 @@ export default function ReportsPage() {
         <div className="space-y-4">
           <TrendLine data={trends} isLoading={trendsLoading} />
           {trends && trends.length > 0 && (
-            <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
+            <div className="surface-1 rounded-2xl p-4 space-y-3">
               <p className="text-sm font-semibold">{t.reports.monthByMonth}</p>
               {[...trends].reverse().map((trend) => (
                 <div key={`${trend.year}-${trend.month}`} className="space-y-1.5">

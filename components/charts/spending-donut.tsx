@@ -18,7 +18,7 @@ const CustomTooltip = ({ active, payload, currency }: { active?: boolean; payloa
   if (!active || !payload?.length) return null;
   const entry = payload[0].payload as CategoryTotal;
   return (
-    <div className="bg-card border border-border rounded-xl px-3 py-2 shadow-card text-sm">
+    <div className="surface-1 rounded-xl px-3 py-2 shadow-card text-sm">
       <p className="font-medium">{entry.categoryIcon} {entry.categoryName}</p>
       <p className="text-muted-foreground">{formatCurrency(entry.total, currency)}</p>
       <p className="text-xs text-muted-foreground">{entry.percentage.toFixed(1)}%</p>
@@ -33,7 +33,7 @@ export function SpendingDonut({ data = [], isLoading, currency = "USD", title, e
 
   if (isLoading) {
     return (
-      <div className="bg-card border border-border rounded-2xl p-5">
+      <div className="surface-1 rounded-2xl p-5">
         <Skeleton className="h-4 w-36 mb-4" />
         <div className="flex items-center justify-center h-40">
           <div className="w-36 h-36 rounded-full bg-muted skeleton" />
@@ -44,7 +44,7 @@ export function SpendingDonut({ data = [], isLoading, currency = "USD", title, e
 
   if (!data.length) {
     return (
-      <div className="bg-card border border-border rounded-2xl p-5">
+      <div className="surface-1 rounded-2xl p-5">
         <p className="text-sm font-semibold mb-1">{resolvedTitle}</p>
         <p className="text-xs text-muted-foreground mb-4">{t.charts.byCategory}</p>
         <div className="flex flex-col items-center justify-center h-32 text-center">
@@ -56,7 +56,7 @@ export function SpendingDonut({ data = [], isLoading, currency = "USD", title, e
   }
 
   return (
-    <div className="bg-card border border-border rounded-2xl p-5">
+    <div className="surface-1 rounded-2xl p-5">
       <p className="text-sm font-semibold mb-0.5">{resolvedTitle}</p>
       <p className="text-xs text-muted-foreground mb-4">{t.charts.byCategory}</p>
 

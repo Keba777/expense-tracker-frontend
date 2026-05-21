@@ -115,7 +115,7 @@ export function PullToRefresh({ onRefresh, children }: Props) {
             : "transform 0.38s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s",
         }}
       >
-        <div className="w-9 h-9 rounded-full bg-card border border-border shadow-md flex items-center justify-center">
+        <div className="w-9 h-9 rounded-full surface-1 shadow-md flex items-center justify-center">
           <RefreshCw
             className={cn("w-4 h-4 text-primary", refreshing && "animate-spin")}
             style={refreshing ? undefined : { transform: `rotate(${progress * 300}deg)` }}

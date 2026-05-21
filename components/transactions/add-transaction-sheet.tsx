@@ -140,15 +140,16 @@ export function AddTransactionSheet() {
 
       <div
         className={cn(
-          "relative w-full max-w-lg bg-card border border-border shadow-2xl animate-slide-up",
+          "relative w-full max-w-lg bg-[hsl(var(--surface-1))] shadow-sheet animate-slide-up",
           "rounded-t-3xl md:rounded-3xl max-h-[92dvh] overflow-y-auto scrollbar-hide"
         )}
       >
-        <div className="sticky top-0 bg-card/95 backdrop-blur-sm z-10 flex items-center justify-between px-5 pt-4 pb-3 border-b border-border">
+        <div className="md:hidden sheet-handle" />
+        <div className="sticky top-0 glass-nav z-10 flex items-center justify-between px-5 pt-3 pb-3">
           <h2 className="text-lg font-semibold">{isEditing ? t.transaction.edit : t.transaction.new}</h2>
           <button
             onClick={closeAddTransaction}
-            className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground press"
           >
             <X className="w-4 h-4" />
           </button>
@@ -171,8 +172,8 @@ export function AddTransactionSheet() {
                       "h-10 rounded-xl text-sm font-semibold capitalize transition-all",
                       field.value === type
                         ? type === "income"
-                          ? "bg-income text-white shadow-glow-income"
-                          : "bg-expense text-white shadow-glow-expense"
+                          ? "bg-income text-white"
+                          : "bg-expense text-white"
                         : "text-muted-foreground hover:text-foreground",
                       isEditing && "cursor-not-allowed opacity-80"
                     )}
@@ -294,7 +295,7 @@ export function AddTransactionSheet() {
             disabled={isPending}
             className={cn(
               "w-full h-12 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2",
-              "bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-glow",
+              "bg-primary text-primary-foreground hover:bg-primary/90 transition-all press",
               "disabled:opacity-60 disabled:cursor-not-allowed"
             )}
           >

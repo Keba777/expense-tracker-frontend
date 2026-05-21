@@ -60,13 +60,14 @@ export function TransactionDetailSheet() {
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
 
-      <div className="relative w-full max-w-lg bg-card border border-border shadow-2xl animate-slide-up rounded-t-3xl md:rounded-3xl overflow-hidden">
+      <div className="relative w-full max-w-lg bg-[hsl(var(--surface-1))] shadow-sheet animate-slide-up rounded-t-3xl md:rounded-3xl overflow-hidden">
+        <div className="md:hidden sheet-handle" />
         {/* Header */}
-        <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-border">
+        <div className="flex items-center justify-between px-5 pt-3 pb-3">
           <h2 className="text-lg font-semibold">{t.transaction.details}</h2>
           <button
             onClick={handleClose}
-            className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground press"
           >
             <X className="w-4 h-4" />
           </button>
@@ -87,7 +88,7 @@ export function TransactionDetailSheet() {
               </p>
               <p
                 className={cn(
-                  "text-2xl font-bold tabular-nums",
+                  "text-2xl font-bold num",
                   isIncome ? "text-income" : "text-expense"
                 )}
               >
@@ -168,7 +169,7 @@ export function TransactionDetailSheet() {
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={handleEdit}
-              className="h-11 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+              className="h-12 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 bg-primary/10 text-primary hover:bg-primary/20 press transition-colors"
             >
               <Pencil className="w-4 h-4" />
               {t.transaction.editAction}
@@ -177,7 +178,7 @@ export function TransactionDetailSheet() {
               onClick={handleDeleteConfirm}
               disabled={isPending}
               className={cn(
-                "h-11 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-60",
+                "h-12 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 press transition-colors disabled:opacity-60",
                 confirmingDelete
                   ? "bg-expense text-white"
                   : "bg-expense/10 text-expense hover:bg-expense/20"

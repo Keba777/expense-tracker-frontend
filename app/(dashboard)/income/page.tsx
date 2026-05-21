@@ -106,7 +106,7 @@ export default function IncomePage() {
         <h1 className="text-xl font-bold">{t.income.title}</h1>
         <button
           onClick={() => openAddTransaction("income")}
-          className="flex items-center gap-1.5 bg-income/15 text-income text-sm font-medium px-3 py-1.5 rounded-xl hover:bg-income/25 transition-colors"
+          className="flex items-center gap-1.5 bg-income/15 text-income text-sm font-medium px-3.5 py-2 rounded-xl hover:bg-income/25 press transition-colors"
         >
           <Plus className="w-3.5 h-3.5" />
           {t.income.add}
@@ -114,20 +114,20 @@ export default function IncomePage() {
       </div>
 
       {/* Month navigator */}
-      <div className="bg-gradient-income rounded-3xl p-5 text-white relative overflow-hidden">
+      <div className="noise bg-gradient-income rounded-3xl p-5 text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/10 -translate-y-1/2 translate-x-1/4" />
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-4">
-            <button onClick={prevMonth} className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors">
+            <button onClick={prevMonth} className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center hover:bg-white/30 press">
               <ChevronLeft className="w-4 h-4" />
             </button>
             <span className="text-sm font-semibold">{formatMonthYear(year, month)}</span>
-            <button onClick={nextMonth} className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors">
+            <button onClick={nextMonth} className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center hover:bg-white/30 press">
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
           <p className="text-white/70 text-xs mb-1">{t.income.totalIncome}</p>
-          <p className="text-3xl font-bold">{formatCurrency(summary?.totalIncome ?? 0, user?.currency)}</p>
+          <p className="text-3xl font-bold num">{formatCurrency(summary?.totalIncome ?? 0, user?.currency)}</p>
           {prevSummary && (
             <div className="flex items-center gap-1.5 mt-2">
               <TrendingUp className={cn("w-3.5 h-3.5", change >= 0 ? "text-white" : "rotate-180 text-white/60")} />
@@ -141,7 +141,7 @@ export default function IncomePage() {
 
       {/* Sources breakdown */}
       {!isLoading && transactions.length > 0 && (
-        <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
+        <div className="surface-1 rounded-2xl p-4 space-y-3">
           <p className="text-sm font-semibold">{t.income.sources}</p>
           {Array.from(
             transactions.reduce((map, tx) => {
@@ -179,7 +179,7 @@ export default function IncomePage() {
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           placeholder={t.income.searchPlaceholder}
-          className="w-full h-10 bg-card border border-border rounded-xl pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+          className="w-full h-10 surface-1 rounded-xl pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
         />
       </div>
 
@@ -188,8 +188,8 @@ export default function IncomePage() {
         <button
           onClick={() => { setSelectedCategory("all"); setPage(1); }}
           className={cn(
-            "flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors",
-            selectedCategory === "all" ? "bg-primary text-primary-foreground" : "bg-card border border-border text-muted-foreground hover:text-foreground"
+            "flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-medium press transition-colors",
+            selectedCategory === "all" ? "bg-primary text-primary-foreground" : "surface-1 text-muted-foreground hover:text-foreground"
           )}
         >
           {t.expenses.all}
@@ -199,8 +199,8 @@ export default function IncomePage() {
             key={cat.id}
             onClick={() => { setSelectedCategory(cat.id); setPage(1); }}
             className={cn(
-              "flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors",
-              selectedCategory === cat.id ? "bg-primary text-primary-foreground" : "bg-card border border-border text-muted-foreground hover:text-foreground"
+              "flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium press transition-colors",
+              selectedCategory === cat.id ? "bg-primary text-primary-foreground" : "surface-1 text-muted-foreground hover:text-foreground"
             )}
           >
             <span>{cat.icon}</span>
@@ -210,11 +210,11 @@ export default function IncomePage() {
       </div>
 
       {isLoading ? (
-        <div className="bg-card border border-border rounded-2xl divide-y divide-border overflow-hidden">
+        <div className="surface-1 rounded-2xl divide-y divide-border overflow-hidden">
           {Array.from({ length: 5 }).map((_, i) => <TransactionSkeleton key={i} />)}
         </div>
       ) : !transactions.length ? (
-        <div className="bg-card border border-border rounded-2xl p-10 text-center">
+        <div className="surface-1 rounded-2xl p-10 text-center">
           <span className="text-4xl block mb-3">💼</span>
           <p className="font-semibold">{t.income.notFound}</p>
           <p className="text-sm text-muted-foreground mt-1 mb-4">
@@ -251,7 +251,7 @@ export default function IncomePage() {
           <button
             disabled={page === 1}
             onClick={() => setPage(p => p - 1)}
-            className="px-4 py-2 rounded-xl bg-card border border-border text-sm disabled:opacity-40 hover:bg-accent transition-colors"
+            className="px-4 py-2 rounded-xl surface-1 text-sm disabled:opacity-40 hover:bg-accent transition-colors"
           >
             {t.income.previous}
           </button>
@@ -259,7 +259,7 @@ export default function IncomePage() {
           <button
             disabled={page === meta.totalPages}
             onClick={() => setPage(p => p + 1)}
-            className="px-4 py-2 rounded-xl bg-card border border-border text-sm disabled:opacity-40 hover:bg-accent transition-colors"
+            className="px-4 py-2 rounded-xl surface-1 text-sm disabled:opacity-40 hover:bg-accent transition-colors"
           >
             {t.income.next}
           </button>

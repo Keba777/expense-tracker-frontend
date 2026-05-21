@@ -94,7 +94,7 @@ export default function ExpensesPage() {
         <h1 className="text-xl font-bold">{t.expenses.title}</h1>
         <button
           onClick={() => openAddTransaction("expense")}
-          className="flex items-center gap-1.5 bg-expense/15 text-expense text-sm font-medium px-3 py-1.5 rounded-xl hover:bg-expense/25 transition-colors"
+          className="flex items-center gap-1.5 bg-expense/15 text-expense text-sm font-medium px-3.5 py-2 rounded-xl hover:bg-expense/25 press transition-colors"
         >
           <Plus className="w-3.5 h-3.5" />
           {t.expenses.add}
@@ -102,13 +102,13 @@ export default function ExpensesPage() {
       </div>
 
       {/* Month picker */}
-      <div className="bg-card border border-border rounded-2xl p-4">
+      <div className="surface-1 rounded-2xl p-4">
         <div className="flex items-center justify-between mb-3">
-          <button onClick={prevMonth} className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center hover:bg-accent transition-colors">
+          <button onClick={prevMonth} className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center hover:bg-accent press">
             <ChevronLeft className="w-4 h-4" />
           </button>
           <span className="text-sm font-semibold">{formatMonthYear(year, month)}</span>
-          <button onClick={nextMonth} className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center hover:bg-accent transition-colors">
+          <button onClick={nextMonth} className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center hover:bg-accent press">
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -131,7 +131,7 @@ export default function ExpensesPage() {
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           placeholder={t.expenses.searchPlaceholder}
-          className="w-full h-10 bg-card border border-border rounded-xl pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+          className="w-full h-10 surface-1 rounded-xl pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
         />
       </div>
 
@@ -140,8 +140,8 @@ export default function ExpensesPage() {
         <button
           onClick={() => setSelectedCategory("all")}
           className={cn(
-            "flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors",
-            selectedCategory === "all" ? "bg-primary text-primary-foreground" : "bg-card border border-border text-muted-foreground hover:text-foreground"
+            "flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-medium press transition-colors",
+            selectedCategory === "all" ? "bg-primary text-primary-foreground" : "surface-1 text-muted-foreground hover:text-foreground"
           )}
         >
           {t.expenses.all}
@@ -151,8 +151,8 @@ export default function ExpensesPage() {
             key={cat.id}
             onClick={() => setSelectedCategory(cat.id)}
             className={cn(
-              "flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors",
-              selectedCategory === cat.id ? "bg-primary text-primary-foreground" : "bg-card border border-border text-muted-foreground hover:text-foreground"
+              "flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium press transition-colors",
+              selectedCategory === cat.id ? "bg-primary text-primary-foreground" : "surface-1 text-muted-foreground hover:text-foreground"
             )}
           >
             <span>{cat.icon}</span>
@@ -162,11 +162,11 @@ export default function ExpensesPage() {
       </div>
 
       {isLoading ? (
-        <div className="bg-card border border-border rounded-2xl divide-y divide-border overflow-hidden">
+        <div className="surface-1 rounded-2xl divide-y divide-border overflow-hidden">
           {Array.from({ length: 8 }).map((_, i) => <TransactionSkeleton key={i} />)}
         </div>
       ) : !transactions.length ? (
-        <div className="bg-card border border-border rounded-2xl p-10 text-center">
+        <div className="surface-1 rounded-2xl p-10 text-center">
           <span className="text-4xl block mb-3">🔍</span>
           <p className="font-semibold">{t.expenses.notFound}</p>
           <p className="text-sm text-muted-foreground mt-1">
@@ -194,7 +194,7 @@ export default function ExpensesPage() {
           <button
             disabled={page === 1}
             onClick={() => setPage(p => p - 1)}
-            className="px-4 py-2 rounded-xl bg-card border border-border text-sm disabled:opacity-40 hover:bg-accent transition-colors"
+            className="px-4 py-2 rounded-xl surface-1 text-sm disabled:opacity-40 hover:bg-accent transition-colors"
           >
             {t.expenses.previous}
           </button>
@@ -202,7 +202,7 @@ export default function ExpensesPage() {
           <button
             disabled={page === meta.totalPages}
             onClick={() => setPage(p => p + 1)}
-            className="px-4 py-2 rounded-xl bg-card border border-border text-sm disabled:opacity-40 hover:bg-accent transition-colors"
+            className="px-4 py-2 rounded-xl surface-1 text-sm disabled:opacity-40 hover:bg-accent transition-colors"
           >
             {t.expenses.next}
           </button>

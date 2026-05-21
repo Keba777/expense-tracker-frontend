@@ -66,7 +66,7 @@ export default function RegisterPage() {
         <p className="text-muted-foreground text-sm mt-1">{t.auth.createSubtitle}</p>
       </div>
 
-      <div className="bg-card border border-border rounded-3xl p-6 shadow-card">
+      <div className="surface-1 rounded-3xl p-6 shadow-card">
         <form onSubmit={handleSubmit((d) => mutate(d))} className="space-y-4">
           {errors.root && (
             <div className="bg-expense/10 border border-expense/30 rounded-xl px-4 py-3 text-sm text-expense">
@@ -144,7 +144,7 @@ export default function RegisterPage() {
               "w-full h-11 rounded-xl font-semibold text-sm transition-all mt-2",
               "bg-primary text-primary-foreground hover:bg-primary/90",
               "disabled:opacity-60 disabled:cursor-not-allowed",
-              "flex items-center justify-center gap-2 shadow-glow"
+              "flex items-center justify-center gap-2 press"
             )}
           >
             {isPending ? (

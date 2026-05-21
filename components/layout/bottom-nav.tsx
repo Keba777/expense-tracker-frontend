@@ -20,7 +20,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 md:hidden">
-      <div className="bg-card/95 backdrop-blur-xl border-t border-border safe-bottom">
+      <div className="glass-nav safe-bottom">
         <div className="flex items-center justify-around h-16">
           {navItems.map(({ href, icon: Icon, label }) => {
             const isActive = pathname === href;
@@ -29,22 +29,23 @@ export function BottomNav() {
                 key={href}
                 href={href}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1 w-full h-full transition-all duration-200",
+                  "relative flex flex-col items-center justify-center gap-1 w-full h-full press",
+                  "transition-colors duration-200",
                   isActive ? "text-primary" : "text-muted-foreground"
                 )}
               >
+                {isActive && (
+                  <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-b-full bg-primary" />
+                )}
                 <div
                   className={cn(
-                    "relative flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-200",
-                    isActive && "bg-primary/15 scale-110"
+                    "flex items-center justify-center w-10 h-10 rounded-2xl transition-all duration-200",
+                    isActive && "bg-primary/12"
                   )}
                 >
-                  <Icon className={cn("w-5 h-5 transition-all", isActive && "stroke-[2.5]")} />
-                  {isActive && (
-                    <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
-                  )}
+                  <Icon className={cn("w-[22px] h-[22px] transition-all", isActive && "stroke-[2.4]")} />
                 </div>
-                <span className={cn("text-[10px] font-medium leading-none", isActive && "font-semibold")}>
+                <span className={cn("text-[10px] leading-none", isActive ? "font-semibold" : "font-medium")}>
                   {label}
                 </span>
               </Link>

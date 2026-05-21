@@ -19,7 +19,7 @@ const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-card border border-border rounded-xl px-3 py-2 shadow-card text-xs space-y-1">
+    <div className="surface-1 rounded-xl px-3 py-2 shadow-card text-xs space-y-1">
       <p className="font-semibold">{label}</p>
       {payload.map((p: any) => (
         <p key={p.name} style={{ color: p.fill }}>
@@ -50,7 +50,7 @@ export function WeeklyBar({ data = [], isLoading }: WeeklyBarProps) {
   });
 
   return (
-    <div className="bg-card border border-border rounded-2xl p-5">
+    <div className="surface-1 rounded-2xl p-5">
       <p className="text-sm font-semibold mb-0.5">This Week</p>
       <p className="text-xs text-muted-foreground mb-4">Daily spending overview</p>
 

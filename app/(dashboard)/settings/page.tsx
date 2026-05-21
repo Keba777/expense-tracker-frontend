@@ -86,7 +86,7 @@ export default function SettingsPage() {
       <h1 className="text-xl font-bold">{t.settings.title}</h1>
 
       {/* User card */}
-      <div className="bg-card border border-border rounded-2xl p-4 flex items-center gap-4">
+      <div className="surface-1 rounded-2xl p-4 flex items-center gap-4">
         <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0">
           <span className="text-xl font-bold text-primary">
             {user?.firstName?.[0]}{user?.lastName?.[0]}
@@ -102,7 +102,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Section list */}
-      <div className="bg-card border border-border rounded-2xl divide-y divide-border overflow-hidden">
+      <div className="surface-1 rounded-2xl divide-y divide-border overflow-hidden">
         {sections.map(({ id, icon: Icon, label, description }) => (
           <button
             key={id}
@@ -123,7 +123,7 @@ export default function SettingsPage() {
 
       {/* Profile section */}
       {activeSection === "profile" && (
-        <div className="bg-card border border-border rounded-2xl p-4 space-y-4 animate-slide-down">
+        <div className="surface-1 rounded-2xl p-4 space-y-4 animate-slide-down">
           <h3 className="text-sm font-semibold">{t.settings.profileSettings}</h3>
           <form onSubmit={handleSubmit((d) => saveProfile(d))} className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
@@ -165,7 +165,7 @@ export default function SettingsPage() {
 
       {/* Appearance section */}
       {activeSection === "appearance" && (
-        <div className="bg-card border border-border rounded-2xl p-4 space-y-3 animate-slide-down">
+        <div className="surface-1 rounded-2xl p-4 space-y-3 animate-slide-down">
           <h3 className="text-sm font-semibold">{t.settings.theme}</h3>
           <div className="grid grid-cols-3 gap-2">
             {[
@@ -193,7 +193,7 @@ export default function SettingsPage() {
 
       {/* Categories section */}
       {activeSection === "categories" && (
-        <div className="bg-card border border-border rounded-2xl p-4 space-y-3 animate-slide-down">
+        <div className="surface-1 rounded-2xl p-4 space-y-3 animate-slide-down">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold">{t.settings.categories}</h3>
           </div>
@@ -228,7 +228,7 @@ export default function SettingsPage() {
 
       {/* Language section */}
       {activeSection === "language" && (
-        <div className="bg-card border border-border rounded-2xl p-4 space-y-3 animate-slide-down">
+        <div className="surface-1 rounded-2xl p-4 space-y-3 animate-slide-down">
           <h3 className="text-sm font-semibold">{t.settings.language}</h3>
           <div className="grid grid-cols-2 gap-2">
             {(["en", "am"] as const).map((l) => (
@@ -250,7 +250,7 @@ export default function SettingsPage() {
       )}
 
       {/* Logout */}
-      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+      <div className="surface-1 rounded-2xl overflow-hidden">
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 w-full p-4 hover:bg-expense/5 transition-colors text-expense"

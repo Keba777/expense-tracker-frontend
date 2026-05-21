@@ -228,7 +228,7 @@ export function TransactionCard({
           <div className="text-right">
             <p
               className={cn(
-                "text-sm font-semibold tabular-nums",
+                "text-sm font-semibold num",
                 isIncome ? "text-income" : "text-expense"
               )}
             >
@@ -321,7 +321,7 @@ export function TransactionGroup({
         </span>
         <span
           className={cn(
-            "text-xs font-semibold tabular-nums",
+            "text-xs font-semibold num",
             dayTotal >= 0 ? "text-income" : "text-expense"
           )}
         >
@@ -329,7 +329,7 @@ export function TransactionGroup({
           {formatCurrency(Math.abs(dayTotal), currency)}
         </span>
       </div>
-      <div className="bg-card border border-border rounded-2xl overflow-hidden divide-y divide-border">
+      <div className="surface-1 rounded-2xl overflow-hidden divide-y divide-border">
         {transactions.map((tx) => (
           <TransactionCard
             key={tx.id}

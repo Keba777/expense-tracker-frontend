@@ -24,7 +24,7 @@ interface StatCardProps {
 
 function StatCard({ label, value, subValue, icon, color, isLoading }: StatCardProps) {
   return (
-    <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
+    <div className="surface-1 rounded-2xl p-4 space-y-3">
       <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center", color)}>
         {icon}
       </div>

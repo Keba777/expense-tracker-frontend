@@ -25,7 +25,7 @@ export function TransactionSkeleton() {
 
 export function CardSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn("bg-card border border-border rounded-2xl p-5 space-y-3", className)}>
+    <div className={cn("surface-1 rounded-2xl p-5 space-y-3", className)}>
       <Skeleton className="h-4 w-24" />
       <Skeleton className="h-8 w-36" />
       <Skeleton className="h-3 w-28" />
@@ -35,7 +35,7 @@ export function CardSkeleton({ className }: { className?: string }) {
 
 export function ChartSkeleton() {
   return (
-    <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+    <div className="surface-1 rounded-2xl p-5 space-y-4">
       <Skeleton className="h-4 w-32" />
       <div className="flex items-end gap-2 h-32">
         {Array.from({ length: 7 }).map((_, i) => (

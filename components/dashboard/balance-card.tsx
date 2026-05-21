@@ -27,12 +27,12 @@ export function BalanceCard({ summary, isLoading, currency = "USD" }: BalanceCar
   };
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-hero p-6 text-white shadow-glow">
+    <div className="noise relative overflow-hidden rounded-3xl bg-gradient-hero p-6 text-white">
       <div
-        className="absolute inset-0 opacity-40"
+        className="absolute inset-0 opacity-50"
         style={{
           backgroundImage:
-            "radial-gradient(ellipse at 80% 20%, rgba(139,92,246,0.4) 0%, transparent 60%)",
+            "radial-gradient(ellipse at 80% 20%, rgba(167,139,250,0.45) 0%, transparent 60%)",
         }}
       />
       <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-white/5 -translate-y-1/2 translate-x-1/4" />
@@ -61,7 +61,7 @@ export function BalanceCard({ summary, isLoading, currency = "USD" }: BalanceCar
           {isLoading ? (
             <div className="h-10 w-44 bg-white/10 rounded-xl animate-pulse" />
           ) : (
-            <p className="text-4xl font-bold tracking-tight">
+            <p className="text-4xl font-bold tracking-tight num">
               {formatCurrency(summary?.netBalance ?? 0, currency)}
             </p>
           )}
