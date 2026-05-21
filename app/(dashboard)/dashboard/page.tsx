@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
   const qc = useQueryClient();
   const openAddTransaction = useUIStore((s) => s.openAddTransaction);
+  const openViewTransaction = useUIStore((s) => s.openViewTransaction);
   const t = useT();
   const { from, to } = getCurrentMonthRange();
 
@@ -113,6 +114,7 @@ export default function DashboardPage() {
                 date={date}
                 transactions={txns}
                 currency={user?.currency}
+                onTap={openViewTransaction}
               />
             ))}
           </div>

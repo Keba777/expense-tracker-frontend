@@ -18,6 +18,7 @@ export default function ExpensesPage() {
   const qc = useQueryClient();
   const openAddTransaction = useUIStore((s) => s.openAddTransaction);
   const openEditTransaction = useUIStore((s) => s.openEditTransaction);
+  const openViewTransaction = useUIStore((s) => s.openViewTransaction);
   const t = useT();
 
   const now = new Date();
@@ -182,6 +183,7 @@ export default function ExpensesPage() {
               currency={user?.currency}
               onEdit={openEditTransaction}
               onDelete={deleteTransaction}
+              onTap={openViewTransaction}
             />
           ))}
         </div>

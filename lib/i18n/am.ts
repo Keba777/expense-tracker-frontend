@@ -129,6 +129,8 @@ export const am = {
     expense: "💸 ወጪ",
     editAction: "አርትዕ",
     deleteAction: "ሰርዝ",
+    details: "የግብይት ዝርዝር",
+    confirmDelete: "ይህን ግብይት ይሰርዙ?",
     amountRequired: "መጠን ያስፈልጋል",
     mustBePositive: "ከዜሮ በላይ መሆን አለበት",
     descriptionRequired: "ማብራሪያ ያስፈልጋል",

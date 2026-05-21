@@ -127,6 +127,8 @@ export const en = {
     expense: "💸 Expense",
     editAction: "Edit",
     deleteAction: "Delete",
+    details: "Transaction Details",
+    confirmDelete: "Delete this transaction?",
     amountRequired: "Amount required",
     mustBePositive: "Must be > 0",
     descriptionRequired: "Description required",

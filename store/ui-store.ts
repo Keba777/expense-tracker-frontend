@@ -10,6 +10,9 @@ interface UIState {
   openAddTransaction: (type?: "income" | "expense") => void;
   openEditTransaction: (transaction: Transaction) => void;
   closeAddTransaction: () => void;
+  viewingTransaction: Transaction | null;
+  openViewTransaction: (transaction: Transaction) => void;
+  closeViewTransaction: () => void;
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
 }
@@ -23,6 +26,9 @@ export const useUIStore = create<UIState>((set) => ({
   openEditTransaction: (transaction: Transaction) =>
     set({ isAddTransactionOpen: true, editingTransaction: transaction, defaultTransactionType: transaction.type }),
   closeAddTransaction: () => set({ isAddTransactionOpen: false, editingTransaction: null }),
+  viewingTransaction: null,
+  openViewTransaction: (transaction: Transaction) => set({ viewingTransaction: transaction }),
+  closeViewTransaction: () => set({ viewingTransaction: null }),
   isSidebarOpen: false,
   toggleSidebar: () => set((s) => ({ isSidebarOpen: !s.isSidebarOpen })),
 }));

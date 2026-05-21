@@ -65,7 +65,7 @@ export function AddTransactionSheet() {
         amount: String(editingTransaction.amount),
         description: editingTransaction.description,
         categoryId: editingTransaction.categoryId,
-        date: editingTransaction.date,
+        date: editingTransaction.date.slice(0, 10),
         recurrence: editingTransaction.recurrence,
         notes: editingTransaction.notes ?? "",
       });

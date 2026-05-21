@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/layout/sidebar";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { AddTransactionSheet } from "@/components/transactions/add-transaction-sheet";
+import { TransactionDetailSheet } from "@/components/transactions/transaction-detail-sheet";
 import { useAuthStore } from "@/store/auth-store";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -29,6 +30,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </main>
       <BottomNav />
       <AddTransactionSheet />
+      <TransactionDetailSheet />
     </div>
   );
 }

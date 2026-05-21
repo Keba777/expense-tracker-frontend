@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
@@ -15,6 +15,7 @@ interface TransactionCardProps {
   currency?: string;
   onEdit?: (t: Transaction) => void;
   onDelete?: (id: string) => void;
+  onTap?: (t: Transaction) => void;
   compact?: boolean;
 }
 
@@ -24,6 +25,7 @@ export function TransactionCard({
   compact = false,
   onEdit,
   onDelete,
+  onTap,
 }: TransactionCardProps) {
   const isIncome = transaction.type === "income";
   const cat = transaction.category;
@@ -50,6 +52,7 @@ export function TransactionCard({
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
   const touchDir = useRef<"h" | "v" | null>(null);
+  const touchHandled = useRef(false); // prevents onClick double-fire after touch tap
   const [offset, setOffset] = useState(0);
   const [sliding, setSliding] = useState(false); // enable CSS transition
 
@@ -126,6 +129,13 @@ export function TransactionCard({
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
+    // Pure tap (no movement) → open detail view
+    if (touchDir.current === null && onTap) {
+      touchHandled.current = true;
+      setTimeout(() => { touchHandled.current = false; }, 500);
+      onTap(transaction);
+      return;
+    }
     if (!hasActions || touchDir.current !== "h") return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     const finalOffset = snapPos.current + dx;
@@ -136,6 +146,11 @@ export function TransactionCard({
       closeCard();
     }
   };
+
+  const handleClick = useCallback(() => {
+    if (touchHandled.current) return;
+    onTap?.(transaction);
+  }, [onTap, transaction]);
 
   return (
     <div className="relative overflow-hidden select-none">
@@ -182,12 +197,14 @@ export function TransactionCard({
         className={cn(
           "relative z-10 flex items-center gap-3 bg-card",
           !compact && "p-4",
-          sliding && "transition-transform duration-200 ease-out"
+          sliding && "transition-transform duration-200 ease-out",
+          onTap && "cursor-pointer active:bg-accent/40"
         )}
         style={{ transform: `translateX(${offset}px)` }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onClick={handleClick}
       >
         {/* Category icon */}
         <div
@@ -280,6 +297,7 @@ interface TransactionGroupProps {
   currency?: string;
   onEdit?: (t: Transaction) => void;
   onDelete?: (id: string) => void;
+  onTap?: (t: Transaction) => void;
 }
 
 export function TransactionGroup({
@@ -288,6 +306,7 @@ export function TransactionGroup({
   currency,
   onEdit,
   onDelete,
+  onTap,
 }: TransactionGroupProps) {
   const dayTotal = transactions.reduce(
     (sum, tx) => sum + (tx.type === "income" ? tx.amount : -tx.amount),
@@ -318,6 +337,7 @@ export function TransactionGroup({
             currency={currency}
             onEdit={onEdit}
             onDelete={onDelete}
+            onTap={onTap}
           />
         ))}
       </div>
