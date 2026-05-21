@@ -24,7 +24,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="min-h-dvh bg-background">
       <Sidebar />
       <main className="md:pl-64">
-        <div className="max-w-2xl mx-auto md:max-w-none px-4 pt-4 pb-24 md:pb-8 md:px-8 md:pt-8">
+        <div className="max-w-2xl mx-auto md:max-w-none px-4 safe-top-pad pb-24 md:pb-8 md:px-8">
           {children}
         </div>
       </main>

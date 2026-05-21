@@ -25,6 +25,38 @@ export function formatCompact(amount: number): string {
   return amount.toFixed(2);
 }
 
+/** Returns { code, amount } for compact card display.
+ *  e.g. ETB 1,234,567 → { code: "ETB", amount: "1.2M" }
+ *       USD 45.99     → { code: "$",   amount: "45.99" }
+ */
+export function formatCurrencyCompact(
+  amount: number,
+  currency = "USD"
+): { code: string; amount: string } {
+  // Extract symbol/code by formatting 0 and stripping the digit
+  const sample = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(0);
+  const code = sample.replace(/[\d,.\s]/g, "").trim() || currency;
+
+  const abs = Math.abs(amount);
+  let compact: string;
+  if (abs >= 1_000_000_000) {
+    compact = `${(amount / 1_000_000_000).toFixed(1)}B`;
+  } else if (abs >= 1_000_000) {
+    compact = `${(amount / 1_000_000).toFixed(1)}M`;
+  } else if (abs >= 1_000) {
+    compact = `${(amount / 1_000).toFixed(1)}K`;
+  } else {
+    compact = amount.toFixed(2);
+  }
+
+  return { code, amount: compact };
+}
+
 export function formatDate(dateStr: string): string {
   const date = parseISO(dateStr);
   if (isToday(date)) return "Today";

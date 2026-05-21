@@ -8,7 +8,7 @@ import { reportsApi } from "@/lib/api/reports";
 import { SpendingDonut } from "@/components/charts/spending-donut";
 import { TrendLine } from "@/components/charts/trend-line";
 import { WeeklyBar } from "@/components/charts/weekly-bar";
-import { formatMonthYear, formatCurrency } from "@/lib/utils";
+import { formatMonthYear, formatCurrency, formatCurrencyCompact, formatDateShort } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { CardSkeleton } from "@/components/ui/skeleton";
 import { useT } from "@/lib/i18n";
@@ -148,14 +148,16 @@ export default function ReportsPage() {
                   { label: t.reports.income, value: monthlyReport.summary.totalIncome, color: "text-income", bg: "bg-income/10" },
                   { label: t.reports.spent, value: monthlyReport.summary.totalExpense, color: "text-expense", bg: "bg-expense/10" },
                   { label: t.reports.saved, value: monthlyReport.summary.netBalance, color: "text-primary", bg: "bg-primary/10" },
-                ].map(({ label, value, color, bg }) => (
-                  <div key={label} className={cn("rounded-2xl p-3 text-center", bg)}>
-                    <p className="text-[11px] text-muted-foreground font-medium mb-1">{label}</p>
-                    <p className={cn("text-base font-bold tabular-nums", color)}>
-                      {formatCurrency(value, user?.currency)}
-                    </p>
-                  </div>
-                ))}
+                ].map(({ label, value, color, bg }) => {
+                  const { code, amount } = formatCurrencyCompact(value, user?.currency);
+                  return (
+                    <div key={label} className={cn("rounded-2xl p-3 text-center", bg)}>
+                      <p className="text-[10px] text-muted-foreground font-medium mb-0.5">{label}</p>
+                      <p className="text-[10px] text-muted-foreground/70 font-medium leading-none mb-0.5">{code}</p>
+                      <p className={cn("text-sm font-bold num leading-tight", color)}>{amount}</p>
+                    </div>
+                  );
+                })}
               </div>
 
               {/* Export buttons */}
@@ -222,7 +224,7 @@ export default function ReportsPage() {
                     .slice(0, 10)
                     .map((day) => (
                       <div key={day.date} className="flex items-center gap-3 text-sm">
-                        <span className="text-muted-foreground w-14 text-xs">{day.date.slice(5)}</span>
+                        <span className="text-muted-foreground w-14 text-xs">{formatDateShort(day.date.slice(0, 10))}</span>
                         <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                           <div
                             className="h-full bg-expense/70 rounded-full"
@@ -253,12 +255,16 @@ export default function ReportsPage() {
                   { label: t.reports.income, value: weeklyReport.summary.totalIncome, color: "text-income", bg: "bg-income/10" },
                   { label: t.reports.spent, value: weeklyReport.summary.totalExpense, color: "text-expense", bg: "bg-expense/10" },
                   { label: t.reports.net, value: weeklyReport.summary.netBalance, color: "text-primary", bg: "bg-primary/10" },
-                ].map(({ label, value, color, bg }) => (
-                  <div key={label} className={cn("rounded-2xl p-3 text-center", bg)}>
-                    <p className="text-[11px] text-muted-foreground font-medium mb-1">{label}</p>
-                    <p className={cn("text-base font-bold", color)}>{formatCurrency(value, user?.currency)}</p>
-                  </div>
-                ))}
+                ].map(({ label, value, color, bg }) => {
+                  const { code, amount } = formatCurrencyCompact(value, user?.currency);
+                  return (
+                    <div key={label} className={cn("rounded-2xl p-3 text-center", bg)}>
+                      <p className="text-[10px] text-muted-foreground font-medium mb-0.5">{label}</p>
+                      <p className="text-[10px] text-muted-foreground/70 font-medium leading-none mb-0.5">{code}</p>
+                      <p className={cn("text-sm font-bold num leading-tight", color)}>{amount}</p>
+                    </div>
+                  );
+                })}
               </div>
               <WeeklyBar data={weeklyReport.daily} />
               <SpendingDonut data={weeklyReport.breakdown} currency={user?.currency} />

@@ -256,6 +256,16 @@
     padding-top: max(0px, env(safe-area-inset-top));
   }
 
+  /* Content-aware top padding: safe-area + buffer on mobile, fixed on desktop */
+  .safe-top-pad {
+    padding-top: max(1rem, calc(env(safe-area-inset-top) + 0.75rem));
+  }
+  @media (min-width: 768px) {
+    .safe-top-pad {
+      padding-top: 2rem;
+    }
+  }
+
   .bottom-nav-height {
     height: calc(4rem + env(safe-area-inset-bottom));
   }
