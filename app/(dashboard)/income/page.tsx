@@ -9,7 +9,9 @@ import { useT } from "@/lib/i18n";
 import { transactionsApi, categoriesApi } from "@/lib/api/transactions";
 import { TransactionGroup } from "@/components/transactions/transaction-card";
 import { TransactionSkeleton } from "@/components/ui/skeleton";
-import { groupTransactionsByDate, formatMonthYear, formatCurrency, percentageChange } from "@/lib/utils";
+import { groupTransactionsByDate, formatCurrency, percentageChange } from "@/lib/utils";
+import { useDateFormat } from "@/lib/use-date-format";
+import { translateCategory } from "@/lib/category-translations";
 import { cn } from "@/lib/utils";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 
@@ -20,6 +22,7 @@ export default function IncomePage() {
   const openEditTransaction = useUIStore((s) => s.openEditTransaction);
   const openViewTransaction = useUIStore((s) => s.openViewTransaction);
   const t = useT();
+  const { formatMonthYear, lang } = useDateFormat();
 
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -204,7 +207,7 @@ export default function IncomePage() {
             )}
           >
             <span>{cat.icon}</span>
-            {cat.name.split(" ")[0]}
+            {translateCategory(cat.name, lang).split(" ")[0]}
           </button>
         ))}
       </div>

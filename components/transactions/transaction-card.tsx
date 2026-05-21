@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
+import { useDateFormat } from "@/lib/use-date-format";
 import { cn } from "@/lib/utils";
 import type { Transaction } from "@/types";
 
@@ -30,6 +31,7 @@ export function TransactionCard({
   const isIncome = transaction.type === "income";
   const cat = transaction.category;
   const t = useT();
+  const { formatDate } = useDateFormat();
 
   // ── Desktop dropdown state ─────────────────────────────────────────────────
   const [menuOpen, setMenuOpen] = useState(false);
@@ -313,6 +315,7 @@ export function TransactionGroup({
   onDelete,
   onTap,
 }: TransactionGroupProps) {
+  const { formatDate } = useDateFormat();
   const dayTotal = transactions.reduce(
     (sum, tx) => sum + (tx.type === "income" ? tx.amount : -tx.amount),
     0

@@ -8,7 +8,8 @@ import { reportsApi } from "@/lib/api/reports";
 import { SpendingDonut } from "@/components/charts/spending-donut";
 import { TrendLine } from "@/components/charts/trend-line";
 import { WeeklyBar } from "@/components/charts/weekly-bar";
-import { formatMonthYear, formatCurrency, formatCurrencyCompact, formatDateShort } from "@/lib/utils";
+import { formatCurrency, formatCurrencyCompact } from "@/lib/utils";
+import { useDateFormat } from "@/lib/use-date-format";
 import { cn } from "@/lib/utils";
 import { CardSkeleton } from "@/components/ui/skeleton";
 import { useT } from "@/lib/i18n";
@@ -19,6 +20,7 @@ type BreakdownType = "expense" | "income";
 export default function ReportsPage() {
   const user = useAuthStore((s) => s.user);
   const t = useT();
+  const { formatMonthYear, formatDateShort } = useDateFormat();
   const [tab, setTab] = useState<ReportTab>("monthly");
   const [breakdownType, setBreakdownType] = useState<BreakdownType>("expense");
   const [isExporting, setIsExporting] = useState(false);

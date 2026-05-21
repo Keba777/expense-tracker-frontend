@@ -11,6 +11,9 @@ import { transactionsApi, categoriesApi } from "@/lib/api/transactions";
 import { useUIStore } from "@/store/ui-store";
 import { useAuthStore } from "@/store/auth-store";
 import { useT } from "@/lib/i18n";
+import { useDateFormat } from "@/lib/use-date-format";
+import { translateCategory } from "@/lib/category-translations";
+import { EthiopianDatePicker } from "@/components/transactions/ethiopian-date-picker";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/types";
 
@@ -32,6 +35,7 @@ export function AddTransactionSheet() {
   const { isAddTransactionOpen, closeAddTransaction, defaultTransactionType, editingTransaction } = useUIStore();
 
   const isEditing = editingTransaction !== null;
+  const { lang } = useDateFormat();
 
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
@@ -245,7 +249,7 @@ export function AddTransactionSheet() {
                     >
                       <span className="text-lg leading-none">{cat.icon}</span>
                       <span className="text-[10px] text-center leading-tight font-medium truncate w-full">
-                        {cat.name.split(" ")[0]}
+                        {translateCategory(cat.name, lang).split(" ")[0]}
                       </span>
                     </button>
                   ))}
@@ -259,11 +263,21 @@ export function AddTransactionSheet() {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <label className="text-sm font-medium">{t.transaction.date}</label>
-              <input
-                {...register("date")}
-                type="date"
-                className="w-full h-11 bg-muted rounded-xl px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
+              {lang === "am" ? (
+                <Controller
+                  name="date"
+                  control={control}
+                  render={({ field }) => (
+                    <EthiopianDatePicker value={field.value} onChange={field.onChange} />
+                  )}
+                />
+              ) : (
+                <input
+                  {...register("date")}
+                  type="date"
+                  className="w-full h-11 bg-muted rounded-xl px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                />
+              )}
             </div>
             <div className="space-y-1.5">
               <label className="text-sm font-medium">{t.transaction.repeat}</label>
