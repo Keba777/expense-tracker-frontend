@@ -216,7 +216,6 @@
     background-size: 160px 160px;
     z-index: 0;
   }
-  .noise > * { position: relative; z-index: 1; }
 
   /* Glass — for nav and overlays */
   .glass {

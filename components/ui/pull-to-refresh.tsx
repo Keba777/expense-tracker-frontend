@@ -123,12 +123,20 @@ export function PullToRefresh({ onRefresh, children }: Props) {
         </div>
       </div>
 
-      {/* Page content shifts down slightly to follow the pull */}
+      {/* Page content shifts down slightly during pull.
+          No transform at rest — any transform (even translateY(0)) creates a new
+          containing block that breaks position:fixed on child FABs. */}
       <div
-        style={{
-          transform: `translateY(${(dragging || refreshing) ? pullY * 0.12 : 0}px)`,
-          transition: dragging ? "none" : "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)",
-        }}
+        style={
+          dragging || refreshing
+            ? {
+                transform: `translateY(${pullY * 0.12}px)`,
+                transition: dragging
+                  ? "none"
+                  : "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)",
+              }
+            : { transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)" }
+        }
       >
         {children}
       </div>
