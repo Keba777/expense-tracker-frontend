@@ -1,26 +1,37 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { format, formatDistanceToNow, isToday, isYesterday, parseISO } from "date-fns";
+import { useLangStore } from "@/store/lang-store";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+function localizeCurrencyCode(code: string): string {
+  if (useLangStore.getState().lang === "am" && code === "ETB") return "ብር";
+  return code;
+}
+
 export function formatCurrency(amount: number, currency = "USD"): string {
-  return new Intl.NumberFormat("en-US", {
+  const raw = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount);
+  if (currency === "ETB" && useLangStore.getState().lang === "am") {
+    return raw.replace(/^ETB\s?/, "ብር ");
+  }
+  return raw;
 }
 
 export function formatCompact(amount: number): string {
+  const am = useLangStore.getState().lang === "am";
   if (Math.abs(amount) >= 1_000_000) {
-    return `${(amount / 1_000_000).toFixed(1)}M`;
+    return `${(amount / 1_000_000).toFixed(1)}${am ? "ሚ" : "M"}`;
   }
   if (Math.abs(amount) >= 1_000) {
-    return `${(amount / 1_000).toFixed(1)}K`;
+    return `${(amount / 1_000).toFixed(1)}${am ? "ሺ" : "K"}`;
   }
   return amount.toFixed(2);
 }
@@ -40,16 +51,17 @@ export function formatCurrencyCompact(
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(0);
-  const code = sample.replace(/[\d,.\s]/g, "").trim() || currency;
+  const code = localizeCurrencyCode(sample.replace(/[\d,.\s]/g, "").trim() || currency);
 
+  const am = useLangStore.getState().lang === "am";
   const abs = Math.abs(amount);
   let compact: string;
   if (abs >= 1_000_000_000) {
-    compact = `${(amount / 1_000_000_000).toFixed(1)}B`;
+    compact = `${(amount / 1_000_000_000).toFixed(1)}${am ? "ቢ" : "B"}`;
   } else if (abs >= 1_000_000) {
-    compact = `${(amount / 1_000_000).toFixed(1)}M`;
+    compact = `${(amount / 1_000_000).toFixed(1)}${am ? "ሚ" : "M"}`;
   } else if (abs >= 1_000) {
-    compact = `${(amount / 1_000).toFixed(1)}K`;
+    compact = `${(amount / 1_000).toFixed(1)}${am ? "ሺ" : "K"}`;
   } else {
     compact = amount.toFixed(2);
   }

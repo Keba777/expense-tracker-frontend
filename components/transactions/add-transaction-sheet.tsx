@@ -194,7 +194,7 @@ export function AddTransactionSheet() {
             <label className="text-sm font-medium">{t.transaction.amount}</label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">
-                {user?.currency ?? "USD"}
+                {lang === "am" && user?.currency === "ETB" ? "ብር" : (user?.currency ?? "USD")}
               </span>
               <input
                 {...register("amount")}

@@ -16,6 +16,7 @@ import { useLangStore } from "@/store/lang-store";
 import { categoriesApi } from "@/lib/api/transactions";
 import { apiClient } from "@/lib/api/client";
 import { useT } from "@/lib/i18n";
+import { translateCategory } from "@/lib/category-translations";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/types";
 
@@ -207,8 +208,10 @@ export default function SettingsPage() {
                 <div key={cat.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-muted">
                   <span className="text-base">{cat.icon}</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{cat.name}</p>
-                    <p className="text-xs text-muted-foreground capitalize">{cat.type}</p>
+                    <p className="text-sm font-medium truncate">{translateCategory(cat.name, lang)}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {cat.type === "income" ? t.settings.income : t.settings.expense}
+                    </p>
                   </div>
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }} />
                   {!cat.isDefault && (

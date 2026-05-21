@@ -3,6 +3,8 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { formatCurrency } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
+import { useLangStore } from "@/store/lang-store";
+import { translateCategory } from "@/lib/category-translations";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { CategoryTotal } from "@/types";
 
@@ -14,12 +16,12 @@ interface SpendingDonutProps {
   emptyLabel?: string;
 }
 
-const CustomTooltip = ({ active, payload, currency }: { active?: boolean; payload?: any[]; currency?: string }) => {
+const CustomTooltip = ({ active, payload, currency, lang }: { active?: boolean; payload?: any[]; currency?: string; lang?: string }) => {
   if (!active || !payload?.length) return null;
   const entry = payload[0].payload as CategoryTotal;
   return (
     <div className="surface-1 rounded-xl px-3 py-2 shadow-card text-sm">
-      <p className="font-medium">{entry.categoryIcon} {entry.categoryName}</p>
+      <p className="font-medium">{entry.categoryIcon} {translateCategory(entry.categoryName, lang ?? "en")}</p>
       <p className="text-muted-foreground">{formatCurrency(entry.total, currency)}</p>
       <p className="text-xs text-muted-foreground">{entry.percentage.toFixed(1)}%</p>
     </div>
@@ -28,6 +30,7 @@ const CustomTooltip = ({ active, payload, currency }: { active?: boolean; payloa
 
 export function SpendingDonut({ data = [], isLoading, currency = "USD", title, emptyLabel }: SpendingDonutProps) {
   const t = useT();
+  const lang = useLangStore((s) => s.lang);
   const resolvedTitle = title ?? t.charts.spendingBreakdown;
   const resolvedEmptyLabel = emptyLabel ?? t.charts.noExpenses;
 
@@ -77,7 +80,7 @@ export function SpendingDonut({ data = [], isLoading, currency = "USD", title, e
               <Cell key={index} fill={entry.categoryColor} stroke="transparent" />
             ))}
           </Pie>
-          <Tooltip content={<CustomTooltip currency={currency} />} />
+          <Tooltip content={<CustomTooltip currency={currency} lang={lang} />} />
         </PieChart>
       </ResponsiveContainer>
 
@@ -89,7 +92,7 @@ export function SpendingDonut({ data = [], isLoading, currency = "USD", title, e
               style={{ backgroundColor: item.categoryColor }}
             />
             <span className="text-xs flex-1 truncate text-muted-foreground">
-              {item.categoryIcon} {item.categoryName}
+              {item.categoryIcon} {translateCategory(item.categoryName, lang)}
             </span>
             <span className="text-xs font-medium tabular-nums">
               {item.percentage.toFixed(0)}%

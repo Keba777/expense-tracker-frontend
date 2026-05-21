@@ -1,7 +1,7 @@
 "use client";
 
 import { TrendingUp, Target, Calendar, Wallet } from "lucide-react";
-import { formatCurrency, formatCompact } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Summary } from "@/types";
@@ -75,7 +75,7 @@ export function StatsGrid({ summary, isLoading, currency = "USD" }: StatsGridPro
       />
       <StatCard
         label={t.stats.avgDaily}
-        value={`$${formatCompact(avgDaily)}`}
+        value={formatCurrency(avgDaily, currency)}
         subValue={t.stats.daysSoFar(new Date().getDate())}
         icon={<Calendar className="w-4 h-4 text-amber-400" />}
         color="bg-amber-500/15"
@@ -83,7 +83,7 @@ export function StatsGrid({ summary, isLoading, currency = "USD" }: StatsGridPro
       />
       <StatCard
         label={t.stats.totalIncome}
-        value={`$${formatCompact(totalIncome)}`}
+        value={formatCurrency(totalIncome, currency)}
         subValue={t.stats.thisMonth}
         icon={<TrendingUp className="w-4 h-4 text-sky-400" />}
         color="bg-sky-500/15"

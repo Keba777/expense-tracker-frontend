@@ -5,6 +5,7 @@ import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
 import { useDateFormat } from "@/lib/use-date-format";
+import { translateCategory } from "@/lib/category-translations";
 import { cn } from "@/lib/utils";
 import type { Transaction } from "@/types";
 
@@ -31,7 +32,7 @@ export function TransactionCard({
   const isIncome = transaction.type === "income";
   const cat = transaction.category;
   const t = useT();
-  const { formatDate } = useDateFormat();
+  const { formatDate, lang } = useDateFormat();
 
   // ── Desktop dropdown state ─────────────────────────────────────────────────
   const [menuOpen, setMenuOpen] = useState(false);
@@ -225,7 +226,7 @@ export function TransactionCard({
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium truncate">{transaction.description}</p>
           <p className="text-xs text-muted-foreground">
-            {cat?.name ?? (isIncome ? t.balance.income : t.balance.expenses)} ·{" "}
+            {cat?.name ? translateCategory(cat.name, lang) : (isIncome ? t.balance.income : t.balance.expenses)} ·{" "}
             {formatDate(transaction.date)}
           </p>
         </div>

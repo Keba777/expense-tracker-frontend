@@ -6,24 +6,23 @@ import {
 } from "recharts";
 import { formatCompact } from "@/lib/utils";
 import { ChartSkeleton } from "@/components/ui/skeleton";
+import { useT } from "@/lib/i18n";
 import type { DailyTotal } from "@/types";
-import { format, parseISO, eachDayOfInterval, startOfWeek, endOfWeek } from "date-fns";
+import { format, eachDayOfInterval, startOfWeek, endOfWeek } from "date-fns";
 
 interface WeeklyBarProps {
   data?: DailyTotal[];
   isLoading?: boolean;
 }
 
-const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label, spent, earned }: any) => {
   if (!active || !payload?.length) return null;
   return (
     <div className="surface-1 rounded-xl px-3 py-2 shadow-card text-xs space-y-1">
       <p className="font-semibold">{label}</p>
       {payload.map((p: any) => (
         <p key={p.name} style={{ color: p.fill }}>
-          {p.name === "expense" ? "Spent" : "Earned"}: ${formatCompact(p.value)}
+          {p.name === "expense" ? spent : earned}: {formatCompact(p.value)}
         </p>
       ))}
     </div>
@@ -31,6 +30,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function WeeklyBar({ data = [], isLoading }: WeeklyBarProps) {
+  const t = useT();
+
   if (isLoading) return <ChartSkeleton />;
 
   const now = new Date();
@@ -42,7 +43,7 @@ export function WeeklyBar({ data = [], isLoading }: WeeklyBarProps) {
     const key = format(day, "yyyy-MM-dd");
     const found = data.find((d) => d.date.startsWith(key));
     return {
-      name: DAY_LABELS[i],
+      name: t.charts.weekDays[i],
       expense: found?.expense ?? 0,
       income: found?.income ?? 0,
       isToday: format(day, "yyyy-MM-dd") === format(now, "yyyy-MM-dd"),
@@ -51,15 +52,18 @@ export function WeeklyBar({ data = [], isLoading }: WeeklyBarProps) {
 
   return (
     <div className="surface-1 rounded-2xl p-5">
-      <p className="text-sm font-semibold mb-0.5">This Week</p>
-      <p className="text-xs text-muted-foreground mb-4">Daily spending overview</p>
+      <p className="text-sm font-semibold mb-0.5">{t.charts.thisWeek}</p>
+      <p className="text-xs text-muted-foreground mb-4">{t.charts.dailySpending}</p>
 
       <ResponsiveContainer width="100%" height={140}>
         <BarChart data={chartData} margin={{ top: 0, right: 0, bottom: 0, left: -20 }} barSize={20}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
           <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#71717a" }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fontSize: 11, fill: "#71717a" }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${formatCompact(v)}`} />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.04)" }} />
+          <YAxis tick={{ fontSize: 11, fill: "#71717a" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${formatCompact(v)}`} />
+          <Tooltip
+            content={<CustomTooltip spent={t.charts.spent} earned={t.charts.earned} />}
+            cursor={{ fill: "rgba(255,255,255,0.04)" }}
+          />
           <Bar dataKey="expense" name="expense" radius={[6, 6, 0, 0]}>
             {chartData.map((entry, i) => (
               <Cell
