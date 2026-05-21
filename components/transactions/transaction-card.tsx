@@ -202,7 +202,8 @@ export function TransactionCard({
           "relative z-10 flex items-center gap-3 bg-card",
           !compact && "p-4",
           sliding && "transition-transform duration-200 ease-out",
-          onTap && "cursor-pointer active:bg-accent/40"
+          onTap && "cursor-pointer",
+          onTap && !hasActions && "active:bg-accent/40"
         )}
         style={{ transform: `translateX(${offset}px)` }}
         onTouchStart={handleTouchStart}
