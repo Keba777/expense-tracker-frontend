@@ -2,18 +2,21 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Search, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Plus, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
 import { useT } from "@/lib/i18n";
 import { transactionsApi, categoriesApi } from "@/lib/api/transactions";
 import { TransactionGroup } from "@/components/transactions/transaction-card";
 import { TransactionSkeleton } from "@/components/ui/skeleton";
-import { groupTransactionsByDate, formatCurrency } from "@/lib/utils";
+import { groupTransactionsByDate, formatCurrency, getWeekDates } from "@/lib/utils";
 import { useDateFormat } from "@/lib/use-date-format";
 import { translateCategory } from "@/lib/category-translations";
+import { useDebounce } from "@/lib/hooks/use-debounce";
 import { cn } from "@/lib/utils";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
+
+type DateView = "week" | "month" | "custom";
 
 export default function ExpensesPage() {
   const user = useAuthStore((s) => s.user);
@@ -28,28 +31,41 @@ export default function ExpensesPage() {
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [dateView, setDateView] = useState<DateView>("week");
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
   const [page, setPage] = useState(1);
 
-  const from = `${year}-${String(month).padStart(2, "0")}-01`;
-  const lastDay = new Date(year, month, 0).getDate();
-  const to = `${year}-${String(month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+  const monthFrom = `${year}-${String(month).padStart(2, "0")}-01`;
+  const monthLastDay = new Date(year, month, 0).getDate();
+  const monthTo = `${year}-${String(month).padStart(2, "0")}-${String(monthLastDay).padStart(2, "0")}`;
+  const weekDates = getWeekDates();
+
+  const from =
+    dateView === "week" ? weekDates.from
+    : dateView === "custom" ? (customFrom || monthFrom)
+    : monthFrom;
+  const to =
+    dateView === "week" ? weekDates.to
+    : dateView === "custom" ? (customTo || monthTo)
+    : monthTo;
 
   const { data: categoriesData = [] } = useQuery({
     queryKey: ["categories"],
     queryFn: categoriesApi.list,
   });
-
   const expenseCategories = categoriesData.filter((c: any) => c.type === "expense");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["transactions", { type: "expense", from, to, search, categoryId: selectedCategory, page }],
+    queryKey: ["transactions", { type: "expense", from, to, search: debouncedSearch, categoryId: selectedCategory, page }],
     queryFn: () =>
       transactionsApi.list({
         type: "expense",
         from,
         to,
-        search: search || undefined,
+        search: debouncedSearch || undefined,
         categoryId: selectedCategory !== "all" ? selectedCategory : undefined,
         page,
         perPage: 30,
@@ -90,6 +106,8 @@ export default function ExpensesPage() {
     qc.invalidateQueries({ queryKey: ["summary"] });
   };
 
+  const setView = (v: DateView) => { setDateView(v); setPage(1); };
+
   return (
     <PullToRefresh onRefresh={handleRefresh}>
     <div className="space-y-4 animate-fade-in">
@@ -104,7 +122,7 @@ export default function ExpensesPage() {
         </button>
       </div>
 
-      {/* Month picker */}
+      {/* Month picker — only relevant for "month" and "custom" views */}
       <div className="surface-1 rounded-2xl p-4">
         <div className="flex items-center justify-between mb-3">
           <button onClick={prevMonth} className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center hover:bg-accent press">
@@ -120,12 +138,52 @@ export default function ExpensesPage() {
             <p className="text-xs text-muted-foreground">{t.expenses.totalSpent}</p>
             <p className="text-lg font-bold text-expense">{formatCurrency(summary?.totalExpense ?? 0, user?.currency)}</p>
           </div>
-          <div className="bg-income/10 rounded-xl p-2">
+          <div className="bg-surface-3 rounded-xl p-2">
             <p className="text-xs text-muted-foreground">{t.expenses.transactions}</p>
             <p className="text-lg font-bold">{meta?.total ?? 0}</p>
           </div>
         </div>
       </div>
+
+      {/* Date view chips */}
+      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-0.5">
+        {(["week", "month", "custom"] as DateView[]).map((v) => (
+          <button
+            key={v}
+            onClick={() => setView(v)}
+            className={cn(
+              "flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-medium press transition-colors",
+              dateView === v ? "bg-primary text-primary-foreground" : "surface-1 text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {v === "week" ? "This week" : v === "month" ? "All month" : "Custom…"}
+          </button>
+        ))}
+      </div>
+
+      {/* Custom date range */}
+      {dateView === "custom" && (
+        <div className="surface-1 rounded-2xl p-4 grid grid-cols-2 gap-3 animate-fade-in">
+          <div>
+            <p className="text-xs text-muted-foreground mb-1.5">From</p>
+            <input
+              type="date"
+              value={customFrom}
+              onChange={(e) => { setCustomFrom(e.target.value); setPage(1); }}
+              className="w-full h-9 bg-muted rounded-xl px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground mb-1.5">To</p>
+            <input
+              type="date"
+              value={customTo}
+              onChange={(e) => { setCustomTo(e.target.value); setPage(1); }}
+              className="w-full h-9 bg-muted rounded-xl px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Search */}
       <div className="relative">
@@ -134,14 +192,22 @@ export default function ExpensesPage() {
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           placeholder={t.expenses.searchPlaceholder}
-          className="w-full h-10 surface-1 rounded-xl pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+          className="w-full h-10 surface-1 rounded-xl pl-9 pr-9 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
         />
+        {search && (
+          <button
+            onClick={() => setSearch("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* Category filter */}
-      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-0.5">
         <button
-          onClick={() => setSelectedCategory("all")}
+          onClick={() => { setSelectedCategory("all"); setPage(1); }}
           className={cn(
             "flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-medium press transition-colors",
             selectedCategory === "all" ? "bg-primary text-primary-foreground" : "surface-1 text-muted-foreground hover:text-foreground"
@@ -152,7 +218,7 @@ export default function ExpensesPage() {
         {expenseCategories.map((cat: any) => (
           <button
             key={cat.id}
-            onClick={() => setSelectedCategory(cat.id)}
+            onClick={() => { setSelectedCategory(cat.id); setPage(1); }}
             className={cn(
               "flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium press transition-colors",
               selectedCategory === cat.id ? "bg-primary text-primary-foreground" : "surface-1 text-muted-foreground hover:text-foreground"
@@ -166,7 +232,7 @@ export default function ExpensesPage() {
 
       {isLoading ? (
         <div className="surface-1 rounded-2xl divide-y divide-border overflow-hidden">
-          {Array.from({ length: 8 }).map((_, i) => <TransactionSkeleton key={i} />)}
+          {Array.from({ length: 6 }).map((_, i) => <TransactionSkeleton key={i} />)}
         </div>
       ) : !transactions.length ? (
         <div className="surface-1 rounded-2xl p-10 text-center">
@@ -197,7 +263,7 @@ export default function ExpensesPage() {
           <button
             disabled={page === 1}
             onClick={() => setPage(p => p - 1)}
-            className="px-4 py-2 rounded-xl surface-1 text-sm disabled:opacity-40 hover:bg-accent transition-colors"
+            className="px-4 py-2 rounded-xl surface-1 text-sm disabled:opacity-40 hover:bg-accent transition-colors press"
           >
             {t.expenses.previous}
           </button>
@@ -205,7 +271,7 @@ export default function ExpensesPage() {
           <button
             disabled={page === meta.totalPages}
             onClick={() => setPage(p => p + 1)}
-            className="px-4 py-2 rounded-xl surface-1 text-sm disabled:opacity-40 hover:bg-accent transition-colors"
+            className="px-4 py-2 rounded-xl surface-1 text-sm disabled:opacity-40 hover:bg-accent transition-colors press"
           >
             {t.expenses.next}
           </button>

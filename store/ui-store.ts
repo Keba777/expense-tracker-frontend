@@ -13,9 +13,6 @@ interface UIState {
   viewingTransaction: Transaction | null;
   openViewTransaction: (transaction: Transaction) => void;
   closeViewTransaction: () => void;
-  isAllTransactionsOpen: boolean;
-  openAllTransactions: () => void;
-  closeAllTransactions: () => void;
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
 }
@@ -32,9 +29,6 @@ export const useUIStore = create<UIState>((set) => ({
   viewingTransaction: null,
   openViewTransaction: (transaction: Transaction) => set({ viewingTransaction: transaction }),
   closeViewTransaction: () => set({ viewingTransaction: null }),
-  isAllTransactionsOpen: false,
-  openAllTransactions: () => set({ isAllTransactionsOpen: true }),
-  closeAllTransactions: () => set({ isAllTransactionsOpen: false }),
   isSidebarOpen: false,
   toggleSidebar: () => set((s) => ({ isSidebarOpen: !s.isSidebarOpen })),
 }));

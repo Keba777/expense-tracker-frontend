@@ -2,18 +2,21 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, ChevronLeft, ChevronRight, TrendingUp, Search } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, TrendingUp, Search, X } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
 import { useT } from "@/lib/i18n";
 import { transactionsApi, categoriesApi } from "@/lib/api/transactions";
 import { TransactionGroup } from "@/components/transactions/transaction-card";
 import { TransactionSkeleton } from "@/components/ui/skeleton";
-import { groupTransactionsByDate, formatCurrency, percentageChange } from "@/lib/utils";
+import { groupTransactionsByDate, formatCurrency, percentageChange, getWeekDates } from "@/lib/utils";
 import { useDateFormat } from "@/lib/use-date-format";
 import { translateCategory } from "@/lib/category-translations";
+import { useDebounce } from "@/lib/hooks/use-debounce";
 import { cn } from "@/lib/utils";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
+
+type DateView = "week" | "month" | "custom";
 
 export default function IncomePage() {
   const user = useAuthStore((s) => s.user);
@@ -28,13 +31,28 @@ export default function IncomePage() {
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [dateView, setDateView] = useState<DateView>("week");
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
   const [page, setPage] = useState(1);
 
-  const from = `${year}-${String(month).padStart(2, "0")}-01`;
-  const lastDay = new Date(year, month, 0).getDate();
-  const to = `${year}-${String(month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+  const monthFrom = `${year}-${String(month).padStart(2, "0")}-01`;
+  const monthLastDay = new Date(year, month, 0).getDate();
+  const monthTo = `${year}-${String(month).padStart(2, "0")}-${String(monthLastDay).padStart(2, "0")}`;
+  const weekDates = getWeekDates();
 
+  const from =
+    dateView === "week" ? weekDates.from
+    : dateView === "custom" ? (customFrom || monthFrom)
+    : monthFrom;
+  const to =
+    dateView === "week" ? weekDates.to
+    : dateView === "custom" ? (customTo || monthTo)
+    : monthTo;
+
+  // For month-over-month comparison (only meaningful in month view)
   const prevM = month === 1 ? 12 : month - 1;
   const prevY = month === 1 ? year - 1 : year;
   const prevFrom = `${prevY}-${String(prevM).padStart(2, "0")}-01`;
@@ -45,17 +63,16 @@ export default function IncomePage() {
     queryKey: ["categories"],
     queryFn: categoriesApi.list,
   });
-
   const incomeCategories = categoriesData.filter((c: any) => c.type === "income");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["transactions", { type: "income", from, to, search, categoryId: selectedCategory, page }],
+    queryKey: ["transactions", { type: "income", from, to, search: debouncedSearch, categoryId: selectedCategory, page }],
     queryFn: () =>
       transactionsApi.list({
         type: "income",
         from,
         to,
-        search: search || undefined,
+        search: debouncedSearch || undefined,
         categoryId: selectedCategory !== "all" ? selectedCategory : undefined,
         page,
         perPage: 30,
@@ -70,6 +87,7 @@ export default function IncomePage() {
   const { data: prevSummary } = useQuery({
     queryKey: ["summary", prevFrom, prevTo],
     queryFn: () => transactionsApi.summary({ from: prevFrom, to: prevTo }),
+    enabled: dateView === "month",
   });
 
   const { mutate: deleteTransaction } = useMutation({
@@ -102,6 +120,8 @@ export default function IncomePage() {
     qc.invalidateQueries({ queryKey: ["summary"] });
   };
 
+  const setView = (v: DateView) => { setDateView(v); setPage(1); };
+
   return (
     <PullToRefresh onRefresh={handleRefresh}>
     <div className="space-y-4 animate-fade-in">
@@ -116,7 +136,7 @@ export default function IncomePage() {
         </button>
       </div>
 
-      {/* Month navigator */}
+      {/* Month navigator hero */}
       <div className="noise bg-gradient-income rounded-3xl p-5 text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/10 -translate-y-1/2 translate-x-1/4" />
         <div className="relative z-10">
@@ -131,7 +151,7 @@ export default function IncomePage() {
           </div>
           <p className="text-white/70 text-xs mb-1">{t.income.totalIncome}</p>
           <p className="text-3xl font-bold num">{formatCurrency(summary?.totalIncome ?? 0, user?.currency)}</p>
-          {prevSummary && (
+          {prevSummary && dateView === "month" && (
             <div className="flex items-center gap-1.5 mt-2">
               <TrendingUp className={cn("w-3.5 h-3.5", change >= 0 ? "text-white" : "rotate-180 text-white/60")} />
               <span className="text-xs text-white/80">
@@ -175,6 +195,46 @@ export default function IncomePage() {
         </div>
       )}
 
+      {/* Date view chips */}
+      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-0.5">
+        {(["week", "month", "custom"] as DateView[]).map((v) => (
+          <button
+            key={v}
+            onClick={() => setView(v)}
+            className={cn(
+              "flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-medium press transition-colors",
+              dateView === v ? "bg-primary text-primary-foreground" : "surface-1 text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {v === "week" ? "This week" : v === "month" ? "All month" : "Custom…"}
+          </button>
+        ))}
+      </div>
+
+      {/* Custom date range */}
+      {dateView === "custom" && (
+        <div className="surface-1 rounded-2xl p-4 grid grid-cols-2 gap-3 animate-fade-in">
+          <div>
+            <p className="text-xs text-muted-foreground mb-1.5">From</p>
+            <input
+              type="date"
+              value={customFrom}
+              onChange={(e) => { setCustomFrom(e.target.value); setPage(1); }}
+              className="w-full h-9 bg-muted rounded-xl px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground mb-1.5">To</p>
+            <input
+              type="date"
+              value={customTo}
+              onChange={(e) => { setCustomTo(e.target.value); setPage(1); }}
+              className="w-full h-9 bg-muted rounded-xl px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
+          </div>
+        </div>
+      )}
+
       {/* Search */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -182,12 +242,20 @@ export default function IncomePage() {
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           placeholder={t.income.searchPlaceholder}
-          className="w-full h-10 surface-1 rounded-xl pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+          className="w-full h-10 surface-1 rounded-xl pl-9 pr-9 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
         />
+        {search && (
+          <button
+            onClick={() => setSearch("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* Category filter */}
-      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-0.5">
         <button
           onClick={() => { setSelectedCategory("all"); setPage(1); }}
           className={cn(
@@ -254,7 +322,7 @@ export default function IncomePage() {
           <button
             disabled={page === 1}
             onClick={() => setPage(p => p - 1)}
-            className="px-4 py-2 rounded-xl surface-1 text-sm disabled:opacity-40 hover:bg-accent transition-colors"
+            className="px-4 py-2 rounded-xl surface-1 text-sm disabled:opacity-40 hover:bg-accent transition-colors press"
           >
             {t.income.previous}
           </button>
@@ -262,7 +330,7 @@ export default function IncomePage() {
           <button
             disabled={page === meta.totalPages}
             onClick={() => setPage(p => p + 1)}
-            className="px-4 py-2 rounded-xl surface-1 text-sm disabled:opacity-40 hover:bg-accent transition-colors"
+            className="px-4 py-2 rounded-xl surface-1 text-sm disabled:opacity-40 hover:bg-accent transition-colors press"
           >
             {t.income.next}
           </button>

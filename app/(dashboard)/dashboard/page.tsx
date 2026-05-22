@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { BalanceCard } from "@/components/dashboard/balance-card";
 import { StatsGrid } from "@/components/dashboard/stats-grid";
@@ -8,7 +9,6 @@ import { SpendingDonut } from "@/components/charts/spending-donut";
 import { TrendLine } from "@/components/charts/trend-line";
 import { WeeklyBar } from "@/components/charts/weekly-bar";
 import { TransactionGroup } from "@/components/transactions/transaction-card";
-import { AllTransactionsSheet } from "@/components/transactions/all-transactions-sheet";
 import { TransactionSkeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
@@ -21,9 +21,10 @@ import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 const RECENT_GROUPS = 3;
 
 export default function DashboardPage() {
+  const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const qc = useQueryClient();
-  const { openAddTransaction, openViewTransaction, openAllTransactions } = useUIStore();
+  const { openAddTransaction, openViewTransaction } = useUIStore();
   const t = useT();
   const { from, to } = getCurrentMonthRange();
 
@@ -88,7 +89,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between mb-3">
           <p className="text-sm font-semibold">{t.dashboard.recentTransactions}</p>
           <button
-            onClick={openAllTransactions}
+            onClick={() => router.push("/transactions")}
             className="text-xs text-primary font-medium hover:underline press"
           >
             {t.dashboard.viewAll}
@@ -136,8 +137,6 @@ export default function DashboardPage() {
         <Plus className="w-6 h-6" />
       </button>
     </div>
-
-    <AllTransactionsSheet />
     </PullToRefresh>
   );
 }
