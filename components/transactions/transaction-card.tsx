@@ -59,7 +59,8 @@ export function TransactionCard({
   const [offset, setOffset] = useState(0);
   const [sliding, setSliding] = useState(false); // enable CSS transition
 
-  const hasActions = !!(onEdit || onDelete) && !compact;
+  const isPending = !!transaction._pending;
+  const hasActions = !!(onEdit || onDelete) && !compact && !isPending;
 
   // Close when another card is opened via custom event
   useEffect(() => {
@@ -155,9 +156,9 @@ export function TransactionCard({
   };
 
   const handleClick = useCallback(() => {
-    if (touchHandled.current) return;
+    if (touchHandled.current || isPending) return;
     onTap?.(transaction);
-  }, [onTap, transaction]);
+  }, [onTap, transaction, isPending]);
 
   return (
     <div className="relative overflow-hidden select-none">
@@ -233,11 +234,14 @@ export function TransactionCard({
 
         {/* Amount + desktop menu */}
         <div className="flex items-center gap-2 flex-shrink-0">
+          {isPending && (
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse flex-shrink-0" title="Pending sync" />
+          )}
           <div className="text-right">
             <p
               className={cn(
                 "text-sm font-semibold num",
-                isIncome ? "text-income" : "text-expense"
+                isPending ? "text-muted-foreground" : isIncome ? "text-income" : "text-expense"
               )}
             >
               {isIncome ? "+" : "-"}

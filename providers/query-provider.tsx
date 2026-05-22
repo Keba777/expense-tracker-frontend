@@ -27,6 +27,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
               return failureCount < 2;
             },
             refetchOnWindowFocus: false,
+            refetchOnReconnect: true,
           },
           mutations: {
             retry: false,

@@ -47,6 +47,8 @@ export interface Transaction {
   createdAt: string;
   updatedAt: string;
   category?: Category;
+  /** Client-only: true while queued for offline sync, never from server */
+  _pending?: boolean;
 }
 
 export interface Budget {

@@ -10,12 +10,13 @@ import { format } from "date-fns";
 import { transactionsApi, categoriesApi } from "@/lib/api/transactions";
 import { useUIStore } from "@/store/ui-store";
 import { useAuthStore } from "@/store/auth-store";
+import { useOfflineQueue } from "@/store/offline-queue-store";
 import { useT } from "@/lib/i18n";
 import { useDateFormat } from "@/lib/use-date-format";
 import { translateCategory } from "@/lib/category-translations";
 import { EthiopianDatePicker } from "@/components/transactions/ethiopian-date-picker";
 import { cn } from "@/lib/utils";
-import type { Category } from "@/types";
+import type { Category, Transaction } from "@/types";
 
 const schema = z.object({
   type: z.enum(["income", "expense"]),
@@ -32,6 +33,7 @@ export function AddTransactionSheet() {
   const qc = useQueryClient();
   const user = useAuthStore((s) => s.user);
   const t = useT();
+  const { enqueue } = useOfflineQueue();
   const { isAddTransactionOpen, closeAddTransaction, defaultTransactionType, editingTransaction } = useUIStore();
 
   const isEditing = editingTransaction !== null;
@@ -129,8 +131,65 @@ export function AddTransactionSheet() {
   const isPending = isCreating || isUpdating;
 
   const onSubmit = (data: FormData) => {
-    if (isEditing) update(data);
-    else create(data);
+    if (isEditing) {
+      update(data);
+      return;
+    }
+
+    // If offline, queue for sync and optimistically update the UI
+    if (!navigator.onLine) {
+      const optimisticId = crypto.randomUUID();
+      const now = new Date().toISOString();
+      const category = categories.find((c: Category) => c.id === data.categoryId);
+
+      const optimisticTx: Transaction = {
+        id: optimisticId,
+        userId: user?.id ?? "",
+        categoryId: data.categoryId,
+        type: data.type,
+        amount: Number(data.amount),
+        description: data.description,
+        notes: data.notes || undefined,
+        date: data.date,
+        recurrence: data.recurrence,
+        recurrenceEndDate: undefined,
+        tags: [],
+        createdAt: now,
+        updatedAt: now,
+        category,
+        _pending: true,
+      };
+
+      enqueue({
+        id: crypto.randomUUID(),
+        type: "create",
+        payload: {
+          categoryId: data.categoryId,
+          type: data.type,
+          amount: Number(data.amount),
+          description: data.description,
+          notes: data.notes || undefined,
+          date: data.date,
+          recurrence: data.recurrence,
+        },
+        optimisticId,
+        createdAt: Date.now(),
+      });
+
+      const prependOptimistic = (old: { data: Transaction[] } | undefined) => {
+        if (!old) return old;
+        return { ...old, data: [optimisticTx, ...old.data] };
+      };
+
+      qc.setQueryData(["transactions", { page: 1, perPage: 10 }], prependOptimistic);
+      qc.setQueryData(["transactions", { page: 1, perPage: 30 }], prependOptimistic);
+      qc.invalidateQueries({ queryKey: ["summary"] });
+      qc.invalidateQueries({ queryKey: ["reports"] });
+      closeAddTransaction();
+      return;
+    }
+
+    create(data);
   };
 
   if (!isAddTransactionOpen) return null;
