@@ -14,7 +14,7 @@ import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 const schema = z.object({
-  email: z.string().email(),
+  identifier: z.string().min(1),
   password: z.string().min(1),
 });
 type FormData = z.infer<typeof schema>;
@@ -62,19 +62,21 @@ export default function LoginPage() {
           )}
 
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground">{t.auth.email}</label>
+            <label className="text-sm font-medium text-foreground">{t.auth.emailOrPhone}</label>
             <input
-              {...register("email")}
-              type="email"
-              autoComplete="email"
-              placeholder="you@example.com"
+              {...register("identifier")}
+              type="text"
+              autoComplete="username"
+              placeholder="you@example.com or +251912345678"
               className={cn(
                 "w-full h-11 rounded-xl bg-muted border px-4 text-sm transition-colors",
                 "placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50",
-                errors.email ? "border-expense/50" : "border-border focus:border-primary/50"
+                errors.identifier ? "border-expense/50" : "border-border focus:border-primary/50"
               )}
             />
-            {errors.email && <p className="text-xs text-expense">{t.auth.emailRequired}</p>}
+            {errors.identifier && (
+              <p className="text-xs text-expense">{t.auth.emailOrPhoneRequired}</p>
+            )}
           </div>
 
           <div className="space-y-1.5">

@@ -13,13 +13,28 @@ import { useAuthStore } from "@/store/auth-store";
 import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const schema = z.object({
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  email: z.string().email(),
-  password: z.string().min(8),
-  currency: z.string().default("USD"),
-});
+const schema = z
+  .object({
+    firstName: z.string().min(1),
+    lastName: z.string().min(1),
+    email: z
+      .string()
+      .email()
+      .optional()
+      .or(z.literal("")),
+    phone: z
+      .string()
+      .regex(/^\+[1-9]\d{6,14}$/)
+      .optional()
+      .or(z.literal("")),
+    password: z.string().min(8),
+    currency: z.string().default("USD"),
+  })
+  .refine((d) => (d.email && d.email !== "") || (d.phone && d.phone !== ""), {
+    message: "emailOrPhoneRequired",
+    path: ["email"],
+  });
+
 type FormData = z.infer<typeof schema>;
 
 const CURRENCIES = ["USD", "EUR", "GBP", "JPY", "ETB", "CAD", "AUD", "CHF", "CNY", "INR"];
@@ -49,12 +64,27 @@ export default function RegisterPage() {
     },
   });
 
+  const onSubmit = (data: FormData) => {
+    mutate({
+      ...data,
+      email: data.email || undefined,
+      phone: data.phone || undefined,
+    });
+  };
+
   const inputClass = (hasError?: boolean) =>
     cn(
       "w-full h-11 rounded-xl bg-muted border px-4 text-sm transition-colors",
       "placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50",
       hasError ? "border-expense/50" : "border-border focus:border-primary/50"
     );
+
+  const emailError =
+    errors.email?.message === "emailOrPhoneRequired"
+      ? t.auth.emailOrPhoneRequired
+      : errors.email
+      ? t.auth.emailRequired
+      : undefined;
 
   return (
     <div className="w-full max-w-sm animate-fade-in">
@@ -67,7 +97,7 @@ export default function RegisterPage() {
       </div>
 
       <div className="surface-1 rounded-3xl p-6 shadow-card">
-        <form onSubmit={handleSubmit((d) => mutate(d))} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {errors.root && (
             <div className="bg-expense/10 border border-expense/30 rounded-xl px-4 py-3 text-sm text-expense">
               {errors.root.message}
@@ -96,7 +126,10 @@ export default function RegisterPage() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-medium">{t.auth.email}</label>
+            <div className="flex items-baseline justify-between">
+              <label className="text-sm font-medium">{t.auth.email}</label>
+              <span className="text-xs text-muted-foreground">{t.auth.emailOptional}</span>
+            </div>
             <input
               {...register("email")}
               type="email"
@@ -104,7 +137,23 @@ export default function RegisterPage() {
               placeholder="you@example.com"
               className={inputClass(!!errors.email)}
             />
-            {errors.email && <p className="text-xs text-expense">{t.auth.emailRequired}</p>}
+            {emailError && <p className="text-xs text-expense">{emailError}</p>}
+          </div>
+
+          <div className="space-y-1.5">
+            <div className="flex items-baseline justify-between">
+              <label className="text-sm font-medium">{t.auth.phone}</label>
+              <span className="text-xs text-muted-foreground">{t.auth.phoneOptional}</span>
+            </div>
+            <input
+              {...register("phone")}
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="+251912345678"
+              className={inputClass(!!errors.phone)}
+            />
+            {errors.phone && <p className="text-xs text-expense">{t.auth.invalidPhone}</p>}
           </div>
 
           <div className="space-y-1.5">

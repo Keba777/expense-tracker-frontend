@@ -6,7 +6,8 @@ export type BudgetPeriod = "weekly" | "monthly" | "yearly";
 
 export interface User {
   id: string;
-  email: string;
+  email?: string;
+  phone?: string;
   firstName: string;
   lastName: string;
   currency: string;
@@ -15,6 +16,7 @@ export interface User {
   plan: Plan;
   isActive: boolean;
   emailVerifiedAt?: string;
+  phoneVerifiedAt?: string;
   createdAt: string;
 }
 
@@ -160,7 +162,8 @@ export interface CreateTransactionInput {
 }
 
 export interface RegisterInput {
-  email: string;
+  email?: string;
+  phone?: string;
   password: string;
   firstName: string;
   lastName: string;
@@ -169,6 +172,6 @@ export interface RegisterInput {
 }
 
 export interface LoginInput {
-  email: string;
+  identifier: string;
   password: string;
 }
