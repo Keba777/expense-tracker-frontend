@@ -8,6 +8,7 @@ import { SpendingDonut } from "@/components/charts/spending-donut";
 import { TrendLine } from "@/components/charts/trend-line";
 import { WeeklyBar } from "@/components/charts/weekly-bar";
 import { TransactionGroup } from "@/components/transactions/transaction-card";
+import { AllTransactionsSheet } from "@/components/transactions/all-transactions-sheet";
 import { TransactionSkeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
@@ -15,14 +16,14 @@ import { useT } from "@/lib/i18n";
 import { transactionsApi } from "@/lib/api/transactions";
 import { reportsApi } from "@/lib/api/reports";
 import { getCurrentMonthRange, groupTransactionsByDate } from "@/lib/utils";
-import Link from "next/link";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
+
+const RECENT_GROUPS = 3;
 
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
   const qc = useQueryClient();
-  const openAddTransaction = useUIStore((s) => s.openAddTransaction);
-  const openViewTransaction = useUIStore((s) => s.openViewTransaction);
+  const { openAddTransaction, openViewTransaction, openAllTransactions } = useUIStore();
   const t = useT();
   const { from, to } = getCurrentMonthRange();
 
@@ -52,7 +53,9 @@ export default function DashboardPage() {
   });
 
   const transactions = recentData?.data ?? [];
-  const grouped = groupTransactionsByDate(transactions);
+  const allGrouped = groupTransactionsByDate(transactions);
+  // Show only the most recent N date groups on the dashboard
+  const grouped = new Map(Array.from(allGrouped.entries()).slice(0, RECENT_GROUPS));
 
   const handleRefresh = () => {
     qc.invalidateQueries({ queryKey: ["summary"] });
@@ -84,9 +87,12 @@ export default function DashboardPage() {
       <div>
         <div className="flex items-center justify-between mb-3">
           <p className="text-sm font-semibold">{t.dashboard.recentTransactions}</p>
-          <Link href="/expenses" className="text-xs text-primary font-medium hover:underline">
+          <button
+            onClick={openAllTransactions}
+            className="text-xs text-primary font-medium hover:underline press"
+          >
             {t.dashboard.viewAll}
-          </Link>
+          </button>
         </div>
 
         {txLoading ? (
@@ -130,6 +136,8 @@ export default function DashboardPage() {
         <Plus className="w-6 h-6" />
       </button>
     </div>
+
+    <AllTransactionsSheet />
     </PullToRefresh>
   );
 }
