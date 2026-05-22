@@ -30,24 +30,24 @@
 
 /* ─── Dark theme variables ─── */
 .dark {
-  --background: 240 8% 2.5%;        /* near-OLED black, faint cool tint */
-  --foreground: 0 0% 98%;
-  --card: 240 7% 5%;                /* alias to surface-1 for legacy */
-  --card-foreground: 0 0% 98%;
-  --surface-1: 240 7% 5%;
-  --surface-2: 240 7% 8%;
-  --surface-3: 240 7% 11%;
-  --border: 240 5% 11%;             /* subtle dividers only */
-  --border-strong: 240 5% 18%;      /* focused inputs */
-  --input: 240 5% 11%;
-  --primary: 263 85% 60%;           /* punchier violet */
+  --background: 222 47% 11%;       /* #0F172A — slate-900, clearly navy */
+  --foreground: 210 40% 98%;       /* blue-white, crisp on navy */
+  --card: 217 35% 16%;             /* #182338 — elevated card surface */
+  --card-foreground: 210 40% 98%;
+  --surface-1: 217 35% 16%;        /* cards, sheets, sidebar bg */
+  --surface-2: 215 30% 21%;        /* inputs, nested panels */
+  --surface-3: 213 27% 26%;        /* hover rows, selected items */
+  --border: 215 24% 28%;           /* visible dividers on navy */
+  --border-strong: 213 22% 36%;    /* focused input rings */
+  --input: 215 32% 20%;            /* input field backgrounds */
+  --primary: 263 85% 60%;          /* violet — pops on navy */
   --primary-foreground: 210 20% 98%;
-  --secondary: 240 6% 13%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 240 6% 13%;
-  --muted-foreground: 240 5% 68%;
-  --accent: 240 6% 13%;
-  --accent-foreground: 0 0% 98%;
+  --secondary: 215 32% 19%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 215 32% 18%;
+  --muted-foreground: 215 20% 65%; /* readable secondary text */
+  --accent: 215 32% 19%;
+  --accent-foreground: 210 40% 98%;
   --ring: 263 85% 60%;
 }
 
@@ -95,9 +95,9 @@
   --shadow-glow: 0 0 24px rgba(167, 139, 250, 0.45);
   --shadow-glow-income: 0 0 24px rgba(52, 211, 153, 0.40);
   --shadow-glow-expense: 0 0 24px rgba(251, 113, 133, 0.40);
-  --shadow-card: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 1px 2px rgba(0,0,0,0.5);
-  --shadow-card-hover: 0 1px 0 0 rgba(255,255,255,0.06) inset, 0 4px 16px rgba(0,0,0,0.55);
-  --shadow-sheet: 0 -8px 32px rgba(0,0,0,0.5), inset 0 1px 0 0 rgba(255,255,255,0.05);
+  --shadow-card: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 1px 2px rgba(2,8,20,0.55);
+  --shadow-card-hover: 0 1px 0 0 rgba(255,255,255,0.06) inset, 0 4px 16px rgba(2,8,20,0.60);
+  --shadow-sheet: 0 -8px 32px rgba(2,8,20,0.55), inset 0 1px 0 0 rgba(255,255,255,0.05);
 
   /* Animations — spring-ish easing (Apple) */
   --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
@@ -229,7 +229,7 @@
   .glass-nav {
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
-    background-color: hsla(240, 10%, 4%, 0.72);
+    background-color: hsla(222, 47%, 11%, 0.85);
     box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
   }
   :where(:root:not(.dark)) .glass-nav {
