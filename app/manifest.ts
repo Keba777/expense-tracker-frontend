@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
+    id: "/",
     name: "ExpenseTracker",
     short_name: "Expenses",
     description: "Track your income and expenses with beautiful insights",
@@ -19,6 +20,18 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "any",
       },
       {
+        src: "/icon-192",
+        sizes: "192x192",
+        type: "image/png",
+        purpose: "maskable",
+      },
+      {
+        src: "/icon-512",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
         src: "/icon-512",
         sizes: "512x512",
         type: "image/png",
@@ -30,6 +43,25 @@ export default function manifest(): MetadataRoute.Manifest {
         type: "image/png",
       },
     ],
-    screenshots: [],
+    shortcuts: [
+      {
+        name: "Add Expense",
+        short_name: "Expense",
+        url: "/expenses",
+        icons: [{ src: "/icon-192", sizes: "192x192" }],
+      },
+      {
+        name: "Add Income",
+        short_name: "Income",
+        url: "/income",
+        icons: [{ src: "/icon-192", sizes: "192x192" }],
+      },
+      {
+        name: "Reports",
+        short_name: "Reports",
+        url: "/reports",
+        icons: [{ src: "/icon-192", sizes: "192x192" }],
+      },
+    ],
   };
 }

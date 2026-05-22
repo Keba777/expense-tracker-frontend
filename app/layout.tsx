@@ -4,6 +4,8 @@ import { GeistMono } from "geist/font/mono";
 import { ThemeProvider } from "next-themes";
 import { QueryProvider } from "@/providers/query-provider";
 import { SWRegister } from "@/components/pwa/sw-register";
+import { OfflineIndicator } from "@/components/pwa/offline-indicator";
+import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { LangSync } from "@/components/lang-sync";
 import "./globals.css";
 
@@ -50,9 +52,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           enableSystem
           disableTransitionOnChange
         >
+          <OfflineIndicator />
           <QueryProvider>{children}</QueryProvider>
           <LangSync />
           <SWRegister />
+          <InstallPrompt />
         </ThemeProvider>
       </body>
     </html>
