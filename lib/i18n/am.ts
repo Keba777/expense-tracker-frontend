@@ -207,5 +207,11 @@ export const am = {
     income: "ገቢ",
     expense: "ወጪ",
     required: "ያስፈልጋል",
+    security: "ደህንነት",
+    securityDesc: "የምስጢር ቃልዎን ይቀይሩ",
+    changePassword: "የምስጢር ቃል ቀይር",
+    currentPassword: "አሁን ያለው የምስጢር ቃል",
+    passwordChanged: "የምስጢር ቃሉ በተሳካ ሁኔታ ተዘምኗል",
+    wrongCurrentPassword: "አሁን ያለው የምስጢር ቃል ትክክል አይደለም",
   },
 } satisfies AppTranslations;

@@ -9,12 +9,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import {
   User, Palette, Bell, Globe, LogOut, ChevronRight,
-  Sun, Moon, Monitor, Trash2, Loader2,
+  Sun, Moon, Monitor, Trash2, Loader2, Lock, Eye, EyeOff, CheckCircle2,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
 import { useLangStore } from "@/store/lang-store";
 import { categoriesApi } from "@/lib/api/transactions";
 import { apiClient } from "@/lib/api/client";
+import { authApi } from "@/lib/api/auth";
 import { useT } from "@/lib/i18n";
 import { translateCategory } from "@/lib/category-translations";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,18 @@ const profileSchema = z.object({
 });
 type ProfileData = z.infer<typeof profileSchema>;
 
+const passwordSchema = z
+  .object({
+    currentPassword: z.string().min(1),
+    newPassword: z.string().min(8),
+    confirmPassword: z.string().min(1),
+  })
+  .refine((d) => d.newPassword === d.confirmPassword, {
+    message: "passwordsDoNotMatch",
+    path: ["confirmPassword"],
+  });
+type PasswordData = z.infer<typeof passwordSchema>;
+
 const CURRENCIES = ["USD", "EUR", "GBP", "JPY", "ETB", "CAD", "AUD", "CHF", "CNY", "INR"];
 const TIMEZONES = Intl.supportedValuesOf("timeZone").slice(0, 50);
 
@@ -39,6 +52,10 @@ export default function SettingsPage() {
   const { lang, setLang } = useLangStore();
   const t = useT();
   const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
+  const [pwChanged, setPwChanged] = useState(false);
 
   const { data: categories = [], isLoading: catsLoading } = useQuery({
     queryKey: ["categories"],
@@ -63,6 +80,29 @@ export default function SettingsPage() {
     },
   });
 
+  const {
+    register: registerPw,
+    handleSubmit: handlePwSubmit,
+    formState: { errors: pwErrors },
+    setError: setPwError,
+    reset: resetPwForm,
+  } = useForm<PasswordData>({ resolver: zodResolver(passwordSchema) });
+
+  const { mutate: changePassword, isPending: changingPassword } = useMutation({
+    mutationFn: (data: PasswordData) => authApi.changePassword(data.currentPassword, data.newPassword),
+    onSuccess: () => {
+      setPwChanged(true);
+      resetPwForm();
+      setTimeout(() => setPwChanged(false), 3000);
+    },
+    onError: (err: unknown) => {
+      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
+      setPwError("currentPassword", {
+        message: msg?.includes("incorrect") ? "wrongCurrentPassword" : msg ?? "error",
+      });
+    },
+  });
+
   const { mutate: deleteCategory } = useMutation({
     mutationFn: categoriesApi.delete,
     onSuccess: () => qc.invalidateQueries({ queryKey: ["categories"] }),
@@ -77,6 +117,7 @@ export default function SettingsPage() {
 
   const sections = [
     { id: "profile", icon: User, label: t.settings.profile, description: t.settings.profileDesc },
+    { id: "security", icon: Lock, label: t.settings.security, description: t.settings.securityDesc },
     { id: "appearance", icon: Palette, label: t.settings.appearance, description: t.settings.appearanceDesc },
     { id: "categories", icon: Bell, label: t.settings.categories, description: t.settings.categoriesDesc },
     { id: "language", icon: Globe, label: t.settings.language, description: t.settings.languageDesc },
@@ -95,7 +136,7 @@ export default function SettingsPage() {
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-semibold">{user?.firstName} {user?.lastName}</p>
-          <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
+          <p className="text-sm text-muted-foreground truncate">{user?.email ?? user?.phone}</p>
           <span className="inline-block mt-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/15 text-primary">
             {user?.plan} {t.settings.planLabel}
           </span>
@@ -159,6 +200,105 @@ export default function SettingsPage() {
               )}
             >
               {savingProfile ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> {t.settings.saving}</> : t.settings.saveChanges}
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* Security section */}
+      {activeSection === "security" && (
+        <div className="surface-1 rounded-2xl p-4 space-y-4 animate-slide-down">
+          <h3 className="text-sm font-semibold">{t.settings.changePassword}</h3>
+
+          {pwChanged && (
+            <div className="flex items-center gap-2 bg-income/10 border border-income/30 rounded-xl px-4 py-3 text-sm text-income">
+              <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+              {t.settings.passwordChanged}
+            </div>
+          )}
+
+          <form onSubmit={handlePwSubmit((d) => changePassword(d))} className="space-y-3">
+            {/* Current password */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">{t.settings.currentPassword}</label>
+              <div className="relative">
+                <input
+                  {...registerPw("currentPassword")}
+                  type={showCurrentPw ? "text" : "password"}
+                  autoComplete="current-password"
+                  placeholder="••••••••"
+                  className={cn(inputClass, "pr-10", pwErrors.currentPassword && "border-expense/50")}
+                />
+                <button type="button" onClick={() => setShowCurrentPw(!showCurrentPw)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                  {showCurrentPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              {pwErrors.currentPassword && (
+                <p className="text-xs text-expense">
+                  {pwErrors.currentPassword.message === "wrongCurrentPassword"
+                    ? t.settings.wrongCurrentPassword
+                    : t.auth.passwordRequired}
+                </p>
+              )}
+            </div>
+
+            {/* New password */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">{t.auth.newPassword}</label>
+              <div className="relative">
+                <input
+                  {...registerPw("newPassword")}
+                  type={showNewPw ? "text" : "password"}
+                  autoComplete="new-password"
+                  placeholder={t.auth.minChars}
+                  className={cn(inputClass, "pr-10", pwErrors.newPassword && "border-expense/50")}
+                />
+                <button type="button" onClick={() => setShowNewPw(!showNewPw)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                  {showNewPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              {pwErrors.newPassword && <p className="text-xs text-expense">{t.auth.passwordMinLength}</p>}
+            </div>
+
+            {/* Confirm new password */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">{t.auth.confirmPassword}</label>
+              <div className="relative">
+                <input
+                  {...registerPw("confirmPassword")}
+                  type={showConfirmPw ? "text" : "password"}
+                  autoComplete="new-password"
+                  placeholder={t.auth.minChars}
+                  className={cn(inputClass, "pr-10", pwErrors.confirmPassword && "border-expense/50")}
+                />
+                <button type="button" onClick={() => setShowConfirmPw(!showConfirmPw)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                  {showConfirmPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              {pwErrors.confirmPassword && (
+                <p className="text-xs text-expense">
+                  {pwErrors.confirmPassword.message === "passwordsDoNotMatch"
+                    ? t.auth.passwordsDoNotMatch
+                    : t.auth.passwordRequired}
+                </p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={changingPassword}
+              className={cn(
+                "w-full h-10 rounded-xl text-sm font-semibold flex items-center justify-center gap-2",
+                "bg-primary text-primary-foreground hover:bg-primary/90 transition-colors",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
+              )}
+            >
+              {changingPassword
+                ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />{t.auth.resettingPassword}</>
+                : t.settings.changePassword}
             </button>
           </form>
         </div>

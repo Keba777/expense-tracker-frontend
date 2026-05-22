@@ -205,6 +205,12 @@ export const en = {
     income: "income",
     expense: "expense",
     required: "Required",
+    security: "Security",
+    securityDesc: "Change your password",
+    changePassword: "Change password",
+    currentPassword: "Current password",
+    passwordChanged: "Password updated successfully",
+    wrongCurrentPassword: "Current password is incorrect",
   },
 };
 
