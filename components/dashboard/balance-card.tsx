@@ -62,7 +62,7 @@ export function BalanceCard({ summary, isLoading, currency = "USD" }: BalanceCar
             <div className="h-10 w-44 bg-white/10 rounded-xl animate-pulse" />
           ) : (
             <p className="text-4xl font-bold tracking-tight num">
-              {formatCurrency(summary?.netBalance ?? 0, currency)}
+              {formatCurrency(summary?.allTimeNetBalance ?? 0, currency)}
             </p>
           )}
           {!isLoading && summary && (
