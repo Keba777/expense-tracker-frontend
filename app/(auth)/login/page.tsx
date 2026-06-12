@@ -46,9 +46,10 @@ export default function LoginPage() {
   return (
     <div className="w-full max-w-sm animate-fade-in">
       <div className="flex flex-col items-center mb-8">
-        <div className="w-12 h-12 rounded-2xl bg-violet-600 flex items-center justify-center mb-4 shadow-glow">
+        <div className="w-12 h-12 rounded-2xl bg-violet-600 flex items-center justify-center mb-3 shadow-glow">
           <TrendingUp className="w-6 h-6 text-white" />
         </div>
+        <p className="text-sm font-semibold text-violet-400 tracking-widest mb-3">ሒሳብ</p>
         <h1 className="text-2xl font-bold tracking-tight">{t.auth.welcomeBack}</h1>
         <p className="text-muted-foreground text-sm mt-1">{t.auth.signInSubtitle}</p>
       </div>

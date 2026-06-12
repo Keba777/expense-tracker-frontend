@@ -202,7 +202,7 @@ export const am = {
     system: "ስርዓት",
     signOut: "ውጡ",
     signOutDesc: "ከመለያዎ ይውጡ",
-    version: "ExpenseTracker v0.1.0",
+    version: "ሒሳብ v0.1.0",
     tagline: "ለሙሉ ግልጽነት ተሰርቷል፤ ለእርስዎ ተዘጋጅቷል",
     income: "ገቢ",
     expense: "ወጪ",

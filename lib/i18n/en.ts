@@ -200,7 +200,7 @@ export const en = {
     system: "System",
     signOut: "Sign out",
     signOutDesc: "Log out of your account",
-    version: "ExpenseTracker v0.1.0",
+    version: "ሒሳብ v0.1.0",
     tagline: "Built for clarity, designed for you",
     income: "income",
     expense: "expense",

@@ -12,14 +12,14 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "ExpenseTracker",
-    template: "%s | ExpenseTracker",
+    default: "ሒሳብ",
+    template: "%s | ሒሳብ",
   },
   description: "Track your income and expenses with beautiful insights",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "ExpenseTracker",
+    title: "ሒሳብ",
   },
 };
 
