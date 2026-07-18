@@ -6,6 +6,9 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { AddTransactionSheet } from "@/components/transactions/add-transaction-sheet";
 import { TransactionDetailSheet } from "@/components/transactions/transaction-detail-sheet";
+import { AddPersonSheet } from "@/components/people/add-person-sheet";
+import { AddLoanSheet } from "@/components/people/add-loan-sheet";
+import { AddPaymentSheet } from "@/components/people/add-payment-sheet";
 import { useAuthStore } from "@/store/auth-store";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -31,6 +34,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <BottomNav />
       <AddTransactionSheet />
       <TransactionDetailSheet />
+      <AddPersonSheet />
+      <AddLoanSheet />
+      <AddPaymentSheet />
     </div>
   );
 }

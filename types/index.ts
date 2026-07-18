@@ -3,6 +3,8 @@ export type TransactionType = "income" | "expense";
 export type CategoryType = "income" | "expense";
 export type Recurrence = "once" | "daily" | "weekly" | "monthly";
 export type BudgetPeriod = "weekly" | "monthly" | "yearly";
+export type LoanDirection = "lent" | "borrowed";
+export type LoanStatus = "outstanding" | "partially_paid" | "settled";
 
 export interface User {
   id: string;
@@ -162,6 +164,91 @@ export interface CreateTransactionInput {
   recurrence?: Recurrence;
   recurrenceEndDate?: string;
   tags?: string[];
+}
+
+export interface Person {
+  id: string;
+  userId: string;
+  name: string;
+  phone?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PersonWithBalance extends Person {
+  totalLent: number;
+  totalBorrowed: number;
+  netBalance: number;
+  loanCount: number;
+}
+
+export interface LoanPayment {
+  id: string;
+  loanId: string;
+  amount: number;
+  date: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Loan {
+  id: string;
+  userId: string;
+  personId: string;
+  direction: LoanDirection;
+  amount: number;
+  description: string;
+  notes?: string;
+  date: string;
+  dueDate?: string;
+  status: LoanStatus;
+  createdAt: string;
+  updatedAt: string;
+  person?: Person;
+}
+
+export interface LoanWithBalance extends Loan {
+  paidAmount: number;
+  remainingAmount: number;
+}
+
+export interface CreatePersonInput {
+  name: string;
+  phone?: string;
+  notes?: string;
+}
+
+export interface CreateLoanInput {
+  personId: string;
+  direction: LoanDirection;
+  amount: number;
+  description: string;
+  notes?: string;
+  date: string;
+  dueDate?: string;
+}
+
+export interface UpdateLoanInput {
+  description?: string;
+  notes?: string;
+  date?: string;
+  dueDate?: string;
+}
+
+export interface CreateLoanPaymentInput {
+  amount: number;
+  date: string;
+  notes?: string;
+}
+
+export interface LoanFilter {
+  personId?: string;
+  direction?: LoanDirection;
+  status?: LoanStatus;
+  page?: number;
+  perPage?: number;
 }
 
 export interface RegisterInput {

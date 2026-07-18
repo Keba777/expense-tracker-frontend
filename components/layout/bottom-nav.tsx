@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ArrowDownUp, TrendingUp, BarChart2, Settings } from "lucide-react";
+import { Home, ArrowDownUp, TrendingUp, BarChart2, Settings, HandCoins } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
 
@@ -15,6 +15,7 @@ export function BottomNav() {
     { href: "/expenses", icon: ArrowDownUp, label: t.nav.expenses },
     { href: "/income", icon: TrendingUp, label: t.nav.income },
     { href: "/reports", icon: BarChart2, label: t.nav.reports },
+    { href: "/people", icon: HandCoins, label: t.nav.people },
     { href: "/settings", icon: Settings, label: t.nav.settings },
   ];
 

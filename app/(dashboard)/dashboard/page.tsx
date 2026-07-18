@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { BalanceCard } from "@/components/dashboard/balance-card";
 import { StatsGrid } from "@/components/dashboard/stats-grid";
+import { LendingSummaryCard } from "@/components/dashboard/lending-summary-card";
 import { SpendingDonut } from "@/components/charts/spending-donut";
 import { TrendLine } from "@/components/charts/trend-line";
 import { WeeklyBar } from "@/components/charts/weekly-bar";
@@ -72,6 +73,8 @@ export default function DashboardPage() {
       <BalanceCard summary={summary} isLoading={summaryLoading} currency={user?.currency} />
 
       <StatsGrid summary={summary} isLoading={summaryLoading} currency={user?.currency} />
+
+      <LendingSummaryCard currency={user?.currency} />
 
       <WeeklyBar data={weeklyData?.daily} isLoading={weeklyLoading} />
 

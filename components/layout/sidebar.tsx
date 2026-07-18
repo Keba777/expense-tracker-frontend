@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Home, ArrowDownUp, TrendingUp, BarChart2,
-  Settings, LogOut, TrendingUpIcon,
+  Settings, LogOut, TrendingUpIcon, HandCoins,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth-store";
@@ -21,6 +21,7 @@ export function Sidebar() {
     { href: "/expenses", icon: ArrowDownUp, label: t.nav.expenses },
     { href: "/income", icon: TrendingUp, label: t.nav.income },
     { href: "/reports", icon: BarChart2, label: t.nav.reports },
+    { href: "/people", icon: HandCoins, label: t.nav.people },
     { href: "/settings", icon: Settings, label: t.nav.settings },
   ];
 
