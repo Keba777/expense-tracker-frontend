@@ -24,7 +24,7 @@ export function BottomNav() {
       <div className="glass-nav safe-bottom">
         <div className="flex items-center justify-around h-16">
           {navItems.map(({ href, icon: Icon, label }) => {
-            const isActive = pathname === href;
+            const isActive = pathname === href || pathname.startsWith(`${href}/`);
             return (
               <Link
                 key={href}

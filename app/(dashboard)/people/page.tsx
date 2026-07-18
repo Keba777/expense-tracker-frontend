@@ -11,6 +11,7 @@ import { peopleApi } from "@/lib/api/people";
 import { PersonCard } from "@/components/people/person-card";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
+import { formatCurrency } from "@/lib/utils";
 import type { PersonWithBalance } from "@/types";
 
 export default function PeoplePage() {
@@ -31,6 +32,9 @@ export default function PeoplePage() {
   const filtered = people
     .filter((p) => p.name.toLowerCase().includes(debouncedSearch.toLowerCase()))
     .sort((a, b) => Math.abs(b.netBalance) - Math.abs(a.netBalance));
+
+  const totalLent = people.reduce((sum, p) => sum + p.totalLent, 0);
+  const totalBorrowed = people.reduce((sum, p) => sum + p.totalBorrowed, 0);
 
   const { mutate: deletePerson } = useMutation({
     mutationFn: peopleApi.delete,
@@ -54,6 +58,17 @@ export default function PeoplePage() {
             <Plus className="w-3.5 h-3.5" />
             {t.lending.addPerson}
           </button>
+        </div>
+
+        <div className="surface-1 rounded-2xl p-4 grid grid-cols-2 gap-2 text-center">
+          <div className="bg-income/10 rounded-xl p-2">
+            <p className="text-xs text-muted-foreground">{t.lending.totalLent}</p>
+            <p className="text-lg font-bold text-income num">{formatCurrency(totalLent, user?.currency)}</p>
+          </div>
+          <div className="bg-expense/10 rounded-xl p-2">
+            <p className="text-xs text-muted-foreground">{t.lending.totalBorrowed}</p>
+            <p className="text-lg font-bold text-expense num">{formatCurrency(totalBorrowed, user?.currency)}</p>
+          </div>
         </div>
 
         <div className="relative">
