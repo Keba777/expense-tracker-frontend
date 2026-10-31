@@ -254,6 +254,28 @@ export const en = {
     loans: "loans",
     noOutstanding: "No outstanding balance",
   },
+  tg: {
+    expense: "Expense",
+    income: "Income",
+    spent: "Spent",
+    net: "Net",
+    thisMonth: "This month",
+    recent: "Recent",
+    noRecent: "Nothing yet",
+    note: "Note (optional)",
+    save: "Add expense",
+    saveIncome: "Add income",
+    saved: "Added",
+    failed: "Couldn't save — try again",
+    linkTitle: "Link your account",
+    linkSubtitle: "One-time sign in to connect this Telegram to your account.",
+    identifier: "Email or phone",
+    password: "Password",
+    link: "Link account",
+    linking: "Linking…",
+    openApp: "Open full app",
+    notTelegram: "Open this page from Telegram.",
+  },
 };
 
 export type AppTranslations = typeof en;
